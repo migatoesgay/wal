@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta http-equiv="refresh" content="60">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Crypto Mining Dashboard</title>
@@ -50,6 +49,14 @@
                 <div class="text-left">
                     <p class="text-xs opacity-70 leading-none">Cripto: BTC</p>
                     <p class="text-sm font-bold">Solo CKPool</p>
+                </div>
+            </button>
+
+            <button onclick="switchTab('add')" id="btn-tab-add" class="flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                <i class="fa-solid fa-folder-plus text-lg text-emerald-500"></i>
+                <div class="text-left">
+                    <p class="text-xs opacity-70 leading-none">Configuración</p>
+                    <p class="text-sm font-bold">Añadir Pool</p>
                 </div>
             </button>
         </div>
@@ -113,10 +120,9 @@
 
             <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden">
                 <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800"><h3 class="text-sm font-bold text-slate-300"><i class="fa-solid fa-microchip text-amber-500 mr-2"></i>Workers Registrados en BCH</h3></div>
-                <div class="overflow-x-auto text-xs"><table class="w-full text-left border-collapse"><thead><tr class="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800"><th class="px-5 py-3">ID / Nombre del Worker</th><th class="px-5 py-3">Estado</th><th class="px-5 py-3">Hashrate (24h)</th><th class="px-5 py-3">Hashrate (7d)</th><th class="px-5 py-3">Shares</th></tr></thead><tbody class="divide-y divide-slate-800/50 text-slate-300"><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-amber-400">...npxdlxv (Miner Principal)</td><td class="px-5 py-3"><span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">Activo Reciente</span></td><td class="px-5 py-3 font-bold">100 MH/s</td><td class="px-5 py-3 font-bold text-blue-400">244 GH/s</td><td class="px-5 py-3 font-mono text-slate-400">776,984,000</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-400">...ufrTXz (Base Address)</td><td class="px-5 py-3"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">Intermitente</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-bold text-slate-400">36 H/s</td><td class="px-5 py-3 font-mono text-slate-500">160,000</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-500">AvalonNano3</td><td class="px-5 py-3"><span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">Desconectado</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-mono text-slate-500">0</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-500">_01</td><td class="px-5 py-3"><span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">Desconectado</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-mono text-slate-500">0</td></tr></tbody></table></div>
+                <div class="overflow-x-auto text-xs"><table class="w-full text-left border-collapse"><thead><tr class="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800"><th class="px-5 py-3">ID / Nombre del Worker</th><th class="px-5 py-3">Estado</th><th class="px-5 py-3">Hashrate (24h)</th><th class="px-5 py-3">Hashrate (7d)</th><th class="px-5 py-3">Shares</th></tr></thead><tbody class="divide-y divide-slate-800/50 text-slate-300"><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-amber-400">...npxdlxv (Miner Principal)</td><td class="px-5 py-3"><span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">Activo Reciente</span></td><td class="px-5 py-3 font-bold">100 MH/s</td><td class="px-5 py-3 font-bold text-blue-400">244 GH/s</td><td class="px-5 py-3 font-mono text-slate-400">776,984,000</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-400">...ufrTXz (Base Address)</td><td class="px-5 py-3"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">Intermitente</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-bold text-slate-400">36 H/s</td><td class="px-5 py-3 font-mono text-slate-500">160,000</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-400">AvalonNano3</td><td class="px-5 py-3"><span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">Desconectado</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-mono text-slate-500">0</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-400">_01</td><td class="px-5 py-3"><span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">Desconectado</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-mono text-slate-500">0</td></tr></tbody></table></div>
             </div>
         </div>
-
 
         <div id="panel-btc" class="space-y-6 hidden">
             <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-orange-950/20 p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -181,6 +187,56 @@
             </div>
         </div>
 
+        <div id="panel-add" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/20 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <div class="max-w-xl">
+                    <h2 class="text-lg font-bold tracking-wide text-slate-200 flex items-center mb-1">
+                        <i class="fa-solid fa-circle-plus text-emerald-500 mr-2"></i> Configurar Nuevo Pool de Minería
+                    </h2>
+                    <p class="text-xs text-slate-400 mb-6">Integra un nuevo nodo o wallet de seguimiento a tu panel centralizado.</p>
+                    
+                    <form onsubmit="event.preventDefault(); alert('Funcionalidad de backend simulada: ¡Pool guardado con éxito!');" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Algoritmo / Criptomoneda</label>
+                                <select class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-emerald-500 transition font-sans">
+                                    <option value="btc">Bitcoin (BTC) - SHA-256</option>
+                                    <option value="bch">Bitcoin Cash (BCH) - SHA-256</option>
+                                    <option value="ltc">Litecoin (LTC) - Scrypt</option>
+                                    <option value="kas">Kaspa (KAS) - kHeavyHash</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Nombre del Pool (Alias)</label>
+                                <input type="text" placeholder="Ej. Solo CKPool, Binance Pool" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Dirección de la Wallet o Usuario</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500 text-sm">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </span>
+                                <input type="text" placeholder="bc1q... o dirección del nodo" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-300 font-mono placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">URL de la API / Endpoint de Estadísticas (Opcional)</label>
+                            <input type="url" placeholder="https://api.ejemplo.org/user/stats" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 font-mono placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition">
+                        </div>
+
+                        <div class="pt-2 flex justify-end">
+                            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk text-sm"></i> Guardar Conexión
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-slate-900 text-center text-xs text-slate-500">
@@ -192,29 +248,34 @@
         document.getElementById('live-clock').innerText = "Última lectura: " + new Date().toLocaleString();
         document.getElementById('bch-update').innerText = new Date(1778164246 * 1000).toLocaleString();
 
-        // Control de Pestañas (Tabs)
+        // Control de Pestañas (Tabs) Ampliado
         function switchTab(miner) {
             const panelBch = document.getElementById('panel-bch');
             const panelBtc = document.getElementById('panel-btc');
+            const panelAdd = document.getElementById('panel-add');
+            
             const btnBch = document.getElementById('btn-tab-bch');
             const btnBtc = document.getElementById('btn-tab-btc');
+            const btnAdd = document.getElementById('btn-tab-add');
+
+            // Resetear estilos por defecto (Inactivos)
+            btnBch.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            btnBtc.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            btnAdd.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            
+            panelBch.classList.add('hidden');
+            panelBtc.classList.add('hidden');
+            panelAdd.classList.add('hidden');
 
             if(miner === 'bch') {
                 panelBch.classList.remove('hidden');
-                panelBtc.classList.add('hidden');
-                
-                // Estilo botón activo BCH
                 btnBch.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/5";
-                // Estilo botón inactivo BTC
-                btnBtc.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
-            } else {
+            } else if(miner === 'btc') {
                 panelBtc.classList.remove('hidden');
-                panelBch.classList.add('hidden');
-                
-                // Estilo botón activo BTC (Naranja Bitcoin)
                 btnBtc.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-orange-500/30 bg-orange-500/10 text-orange-400 shadow-lg shadow-orange-500/5";
-                // Estilo botón inactivo BCH
-                btnBch.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            } else if(miner === 'add') {
+                panelAdd.classList.remove('hidden');
+                btnAdd.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-lg shadow-emerald-500/5";
             }
         }
 
@@ -225,7 +286,7 @@
             data: {
                 labels: ['1 min', '5 min', '1 hora', '24 horas', '7 días'],
                 datasets: [{
-                    data: [0, 0, 0, 0.1, 244], // Unificado en escala GH/s para estética
+                    data: [0, 0, 0, 0.1, 244],
                     borderColor: '#f59e0b',
                     backgroundColor: 'rgba(245, 158, 11, 0.03)',
                     borderWidth: 2.5,
@@ -251,7 +312,7 @@
             data: {
                 labels: ['7 días (Prom.)', '24 horas', '1 hora', '5 min'],
                 datasets: [{
-                    data: [585, 1060, 1090, 1160], // Escala en GH/s (585G, 1.06T, 1.09T, 1.16T)
+                    data: [585, 1060, 1090, 1160],
                     borderColor: '#f97316',
                     backgroundColor: 'rgba(249, 115, 22, 0.03)',
                     borderWidth: 2.5,
