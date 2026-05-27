@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta http-equiv="refresh" content="60">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Crypto Mining Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+
+    <nav class="border-b border-slate-800 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-slate-950 p-2 rounded-xl font-bold flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-server text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide">SoloMining <span class="text-amber-400">Hub</span></h1>
+                    <p class="text-xs text-slate-400">Panel Centralizado de Monitoreo</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="flex h-2.5 w-2.5 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span class="text-xs font-mono bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-slate-400" id="live-clock">
+                    Sincronizando...
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        
+        <div class="bg-slate-900/60 p-2 rounded-2xl border border-slate-800/80 flex flex-wrap gap-2">
+            <button onclick="switchTab('bch')" id="btn-tab-bch" class="flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/5">
+                <i class="fa-solid fa-coins text-lg"></i>
+                <div class="text-left">
+                    <p class="text-xs opacity-70 leading-none">Cripto: BCH</p>
+                    <p class="text-sm font-bold">SoloMining.io</p>
+                </div>
+            </button>
+            
+            <button onclick="switchTab('btc')" id="btn-tab-btc" class="flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                <i class="fa-solid fa-bitcoin-sign text-lg"></i>
+                <div class="text-left">
+                    <p class="text-xs opacity-70 leading-none">Cripto: BTC</p>
+                    <p class="text-sm font-bold">Solo CKPool</p>
+                </div>
+            </button>
+        </div>
+
+        <div id="panel-bch" class="space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/20 p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold tracking-wider text-amber-400 uppercase bg-amber-400/10 px-2 py-0.5 rounded">Bitcoin Cash (BCH)</span>
+                        <span class="text-xs text-slate-500">Solo Mining Pool</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-slate-300 pt-1">
+                        <i class="fa-solid fa-wallet text-amber-500/70"></i>
+                        <span class="font-mono text-sm break-all">1JEyZ9Ji9i76AyW7gFK92zgdJjzsUfrTXz</span>
+                    </div>
+                </div>
+                <div class="text-left md:text-right border-t md:border-t-0 pt-3 md:pt-0 border-slate-800">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Último Reporte Nodo</span>
+                    <p class="text-xs font-mono text-slate-300 mt-0.5" id="bch-update">Cargando fecha...</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate Semanal (7d)</p>
+                    <div class="flex items-baseline space-x-1 text-blue-400"><span class="text-2xl font-bold">244</span><span class="text-xs font-semibold">GH/s</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">Promedio estable de 7 días</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate Diario (24h)</p>
+                    <div class="flex items-baseline space-x-1 text-amber-500"><span class="text-2xl font-bold">100</span><span class="text-xs font-semibold">MH/s</span></div>
+                    <p class="text-[11px] text-rose-400 mt-2"><i class="fa-solid fa-arrow-trend-down mr-1"></i> Pérdida de potencia reciente</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Eficiencia del Minero</p>
+                    <div class="flex items-baseline text-emerald-400"><span class="text-2xl font-bold">99.91%</span></div>
+                    <p class="text-[11px] text-slate-400 mt-2">777.4M Aceptados / 728K Rech.</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hardware Activo</p>
+                    <div class="flex items-baseline text-purple-400"><span class="text-2xl font-bold">1</span><span class="text-xs text-slate-500 ml-1">/ 4 en lista</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">3 asignaciones reportan 0 H/s</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 lg:col-span-2"><h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-chart-area text-amber-500 mr-2"></i>Curva Histórica de Hashrate (BCH)</h3><div class="h-56"><canvas id="chartBCH"></canvas></div></div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i>Status del Nodo BCH</h3>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+                                <p class="font-bold text-slate-300 mb-0.5">Fluctuación Crítica</p>
+                                <p class="text-slate-400">Los marcadores de corto plazo (1m, 5m, 1h) están en 0. Requiere reinicio físico de los rigs de BCH.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://bchnode.solomining.io/address.php?a=1JEyZ9Ji9i76AyW7gFK92zgdJjzsUfrTXz" target="_blank" class="mt-4 w-full py-2 bg-slate-850 hover:bg-slate-800 border border-slate-700 text-xs font-medium rounded-xl text-center block text-slate-300 transition">Ver origen original .io</a>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden">
+                <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800"><h3 class="text-sm font-bold text-slate-300"><i class="fa-solid fa-microchip text-amber-500 mr-2"></i>Workers Registrados en BCH</h3></div>
+                <div class="overflow-x-auto text-xs"><table class="w-full text-left border-collapse"><thead><tr class="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800"><th class="px-5 py-3">ID / Nombre del Worker</th><th class="px-5 py-3">Estado</th><th class="px-5 py-3">Hashrate (24h)</th><th class="px-5 py-3">Hashrate (7d)</th><th class="px-5 py-3">Shares</th></tr></thead><tbody class="divide-y divide-slate-800/50 text-slate-300"><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-amber-400">...npxdlxv (Miner Principal)</td><td class="px-5 py-3"><span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">Activo Reciente</span></td><td class="px-5 py-3 font-bold">100 MH/s</td><td class="px-5 py-3 font-bold text-blue-400">244 GH/s</td><td class="px-5 py-3 font-mono text-slate-400">776,984,000</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-400">...ufrTXz (Base Address)</td><td class="px-5 py-3"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">Intermitente</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-bold text-slate-400">36 H/s</td><td class="px-5 py-3 font-mono text-slate-500">160,000</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-500">AvalonNano3</td><td class="px-5 py-3"><span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">Desconectado</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-mono text-slate-500">0</td></tr><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-slate-500">_01</td><td class="px-5 py-3"><span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">Desconectado</span></td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 text-slate-500">0</td><td class="px-5 py-3 font-mono text-slate-500">0</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+
+        <div id="panel-btc" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-orange-950/20 p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold tracking-wider text-orange-400 uppercase bg-orange-400/10 px-2 py-0.5 rounded">Bitcoin (BTC)</span>
+                        <span class="text-xs text-slate-500">Solo CKPool (Solo Mining)</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-slate-300 pt-1">
+                        <i class="fa-solid fa-wallet text-orange-500/70"></i>
+                        <span class="font-mono text-sm break-all">bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl</span>
+                    </div>
+                </div>
+                <div class="text-left md:text-right border-t md:border-t-0 pt-3 md:pt-0 border-slate-800">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Último Share Enviado</span>
+                    <p class="text-xs font-bold text-emerald-400 mt-0.5"><i class="fa-solid fa-bolt mr-1"></i>¡Hace unos instantes!</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate Actual (5m)</p>
+                    <div class="flex items-baseline space-x-1 text-orange-400"><span class="text-2xl font-bold">1.16</span><span class="text-xs font-semibold">TH/s</span></div>
+                    <p class="text-[11px] text-emerald-400 mt-2"><i class="fa-solid fa-circle text-[8px] mr-1"></i>Minero rindiendo a tope</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate Diario (24h)</p>
+                    <div class="flex items-baseline space-x-1 text-slate-200"><span class="text-2xl font-bold">1.06</span><span class="text-xs font-semibold">TH/s</span></div>
+                    <p class="text-[11px] text-slate-400 mt-2">Excelente estabilidad diaria</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Shares Acumulados</p>
+                    <div class="flex items-baseline text-slate-100"><span class="text-2xl font-bold">120.12</span><span class="text-xs font-semibold ml-1">M</span></div>
+                    <p class="text-[11px] text-orange-300 mt-2">Mejor share histórico: 489.9M</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Probabilidad de Bloque (Solo)</p>
+                    <div class="flex items-baseline text-purple-400"><span class="text-2xl font-bold">0.006%</span></div>
+                    <p class="text-[11px] text-purple-300 mt-2">Estimado de acierto a 1 Año</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 lg:col-span-2"><h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-chart-area text-orange-500 mr-2"></i>Rendimiento Reciente de Carga (BTC)</h3><div class="h-56"><canvas id="chartBTC"></canvas></div></div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-circle-check text-emerald-400 mr-2"></i>Diagnóstico de Red BTC</h3>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+                                <p class="font-bold text-emerald-400 mb-0.5">Operativo & Saludable</p>
+                                <p class="text-slate-400">El minero está enviando shares con alta frecuencia. Las estadísticas de 5m, 1h y 24h mantienen un margen armónico superior a 1 TH/s.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://eusolostats.ckpool.org/users/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl" target="_blank" class="mt-4 w-full py-2 bg-slate-850 hover:bg-slate-800 border border-slate-700 text-xs font-medium rounded-xl text-center block text-slate-300 transition">Ver origen en CKPool Stats</a>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden">
+                <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800"><h3 class="text-sm font-bold text-slate-300"><i class="fa-solid fa-microchip text-orange-500 mr-2"></i>Workers Activos en BTC</h3></div>
+                <div class="overflow-x-auto text-xs"><table class="w-full text-left border-collapse"><thead><tr class="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800"><th class="px-5 py-3">Nombre del Worker</th><th class="px-5 py-3">Estado</th><th class="px-5 py-3">Hashrate (5m)</th><th class="px-5 py-3">Hashrate (1h)</th><th class="px-5 py-3">Hashrate (1d)</th><th class="px-5 py-3">Último Share</th></tr></thead><tbody class="divide-y divide-slate-800/50 text-slate-300"><tr class="hover:bg-slate-850/40"><td class="px-5 py-3 font-mono text-orange-400 font-bold">Migatoesgay_d=1024</td><td class="px-5 py-3"><span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online</span></td><td class="px-5 py-3 font-bold text-orange-400">1.16 TH/s</td><td class="px-5 py-3">1.09 TH/s</td><td class="px-5 py-3">1.06 TH/s</td><td class="px-5 py-3 text-slate-400">Hace 4 min</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-slate-900 text-center text-xs text-slate-500">
+        Dashboard Multi-Minería Inteligente v3.0 • Datos Históricos Mapeados Localmente.
+    </footer>
+
+    <script>
+        // Actualización de tiempos base
+        document.getElementById('live-clock').innerText = "Última lectura: " + new Date().toLocaleString();
+        document.getElementById('bch-update').innerText = new Date(1778164246 * 1000).toLocaleString();
+
+        // Control de Pestañas (Tabs)
+        function switchTab(miner) {
+            const panelBch = document.getElementById('panel-bch');
+            const panelBtc = document.getElementById('panel-btc');
+            const btnBch = document.getElementById('btn-tab-bch');
+            const btnBtc = document.getElementById('btn-tab-btc');
+
+            if(miner === 'bch') {
+                panelBch.classList.remove('hidden');
+                panelBtc.classList.add('hidden');
+                
+                // Estilo botón activo BCH
+                btnBch.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/5";
+                // Estilo botón inactivo BTC
+                btnBtc.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            } else {
+                panelBtc.classList.remove('hidden');
+                panelBch.classList.add('hidden');
+                
+                // Estilo botón activo BTC (Naranja Bitcoin)
+                btnBtc.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-orange-500/30 bg-orange-500/10 text-orange-400 shadow-lg shadow-orange-500/5";
+                // Estilo botón inactivo BCH
+                btnBch.className = "flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            }
+        }
+
+        // --- Gráfico de BCH ---
+        const ctxBch = document.getElementById('chartBCH').getContext('2d');
+        new Chart(ctxBch, {
+            type: 'line',
+            data: {
+                labels: ['1 min', '5 min', '1 hora', '24 horas', '7 días'],
+                datasets: [{
+                    data: [0, 0, 0, 0.1, 244], // Unificado en escala GH/s para estética
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.03)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.25,
+                    pointBackgroundColor: '#f59e0b'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#64748b', font: { size: 9 } } },
+                    x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+                }
+            }
+        });
+
+        // --- Gráfico de BTC ---
+        const ctxBtc = document.getElementById('chartBTC').getContext('2d');
+        new Chart(ctxBtc, {
+            type: 'line',
+            data: {
+                labels: ['7 días (Prom.)', '24 horas', '1 hora', '5 min'],
+                datasets: [{
+                    data: [585, 1060, 1090, 1160], // Escala en GH/s (585G, 1.06T, 1.09T, 1.16T)
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.03)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.2,
+                    pointBackgroundColor: '#f97316'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#64748b', font: { size: 9 } } },
+                    x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
