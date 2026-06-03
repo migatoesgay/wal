@@ -34,7 +34,6 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        
         <div class="bg-slate-900/60 p-2 rounded-2xl border border-slate-800/80 flex flex-wrap gap-2">
             <button onclick="switchTab('bch')" id="btn-tab-bch" class="flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/5">
                 <i class="fa-solid fa-coins text-lg"></i>
@@ -162,14 +161,12 @@
     </footer>
 
     <script>
-        // Direcciones de las billeteras
         const WALLET_BCH = "1JEyZ9Ji9i76AyW7gFK92zgdJjzsUfrTXz";
         const WALLET_BTC = "bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl";
 
-        // Proxy gratuito para saltar la restricción CORS del navegador local
-        const PROXY = "https://api.allorigins.win/get?url=";
+        // Apunta directamente a tu propio servidor local
+        const PROXY_LOCAL = "proxy.php";
 
-        // Alternar entre pestañas
         function switchTab(miner) {
             const panelBch = document.getElementById('panel-bch');
             const panelBtc = document.getElementById('panel-btc');
@@ -189,72 +186,61 @@
             }
         }
 
-        // CONEXIÓN API REAL - BITCOIN CASH (SoloMining.io)
         async function fetchBCHData() {
             try {
-                const urlReal = `https://bchnode.solomining.io/api/wallet/${WALLET_BCH}`;
-                const respuesta = await fetch(PROXY + encodeURIComponent(urlReal));
-                const jsonWrapper = await respuesta.json();
-                const datos = JSON.parse(jsonWrapper.contents); // Extraer datos del proxy
+                // Llamada a tu propio proxy PHP
+                const respuesta = await fetch(`${PROXY_LOCAL}?pool=bch&wallet=${WALLET_BCH}`);
+                const datos = await respuesta.json();
 
-                if (datos) {
-                    // Conversión de Hashrate a TH/s (suponiendo que la API entrega hashes/sec o GH/s)
-                    // Si la API ya te da TH/s directamente, remueve las divisiones pertinentes.
-                    const hashrate5m = (datos.hashrate || 0) / 1000; 
-                    const hashrate24h = (datos.avgHashrate24h || 0) / 1000;
+                if (datos && !datos.error) {
+                    // Conversión de Hashes puros a TH/s (división entre 10^12)
+                    const hashrate5m = (datos.hashrate || 0) / 1000000000000; 
+                    const hashrate24h = (datos.avgHashrate24h || 0) / 1000000000000;
 
                     document.getElementById('bch-hashrate-5m').innerText = hashrate5m.toFixed(2);
                     document.getElementById('bch-hashrate-24h').innerText = hashrate24h.toFixed(2);
                     document.getElementById('bch-best-share').innerText = datos.bestShare || "N/A";
 
-                    // Procesar trabajadores
                     const tabla = document.getElementById('tabla-workers-bch');
                     tabla.innerHTML = ""; 
 
                     if(datos.workers && Object.keys(datos.workers).length > 0) {
                         document.getElementById('bch-workers-count').innerText = Object.keys(datos.workers).length;
-                        
+                                                
                         for (const [name, workerData] of Object.entries(datos.workers)) {
-                            const hashReal = (workerData.hashrate || 0) / 1000;
+                            const hashReal = (workerData.hashrate || 0) / 1000000000000;
                             tabla.innerHTML += `
                                 <tr class="hover:bg-slate-850/40">
                                     <td class="px-5 py-3 font-mono text-amber-400 font-bold">${name}</td>
                                     <td class="px-5 py-3 font-bold">${hashReal.toFixed(2)} TH/s</td>
-                                    <td class="px-5 py-3">${((workerData.avgHashrate24h || 0)/1000).toFixed(2)} TH/s</td>
+                                    <td class="px-5 py-3">${((workerData.avgHashrate24h || 0)/1000000000000).toFixed(2)} TH/s</td>
                                 </tr>
                             `;
                         }
                     } else {
-                        tabla.innerHTML = `<tr><td colspan="3" class="px-5 py-4 text-center text-slate-500">No se detectan workers activos en esta wallet.</td></tr>`;
+                        document.getElementById('bch-workers-count').innerText = "0";
+                        tabla.innerHTML = `<tr><td colspan="3" class="px-5 py-4 text-center text-slate-500">No se detectan workers activos.</td></tr>`;
                     }
                 }
             } catch (error) {
-                console.error("Error cargando BCH:", error);
+                console.error("Error en proxy BCH:", error);
             }
         }
 
-        // CONEXIÓN API REAL - BITCOIN (Solo CKPool)
         async function fetchBTCData() {
             try {
-                const urlReal = `https://eusolostats.ckpool.org/api/user/${WALLET_BTC}`;
-                const respuesta = await fetch(PROXY + encodeURIComponent(urlReal));
-                const jsonWrapper = await respuesta.json();
-                const datos = JSON.parse(jsonWrapper.contents);
+                // Llamada a tu propio proxy PHP
+                const respuesta = await fetch(`${PROXY_LOCAL}?pool=btc&wallet=${WALLET_BTC}`);
+                const datos = await respuesta.json();
 
-                if (datos) {
-                    // CKPool suele devolver el Hashrate en un formato directo o string (G, T, P)
-                    // Buscamos convertir o plasmar los valores crudos directos de la API de CKPool
-                    const hash5m = parseCKPoolHashrate(datos.hashrate5m || "0");
-                    const hash24h = parseCKPoolHashrate(datos.hashrate24h || "0");
-
-                    document.getElementById('btc-hashrate-5m').innerText = hash5m;
-                    document.getElementById('btc-hashrate-24h').innerText = hash24h;
+                if (datos && !datos.error) {
+                    document.getElementById('btc-hashrate-5m').innerText = datos.hashrate5m || "0.00";
+                    document.getElementById('btc-hashrate-24h').innerText = datos.hashrate24h || "0.00";
                     document.getElementById('btc-best-share').innerText = datos.bestshare || "0";
 
                     const tabla = document.getElementById('tabla-workers-btc');
                     tabla.innerHTML = "";
 
-                    // Mapear los trabajadores dinámicamente desde el objeto 'worker' de CKPool
                     if (datos.worker && Object.keys(datos.worker).length > 0) {
                         const listaWorkers = Object.entries(datos.worker);
                         document.getElementById('btc-workers-count').innerText = listaWorkers.length;
@@ -272,24 +258,18 @@
                         });
                     } else {
                         document.getElementById('btc-workers-count').innerText = "0";
-                        tabla.innerHTML = `<tr><td colspan="5" class="px-5 py-4 text-center text-slate-500">No hay trabajadores activos reportando a CKPool.</td></tr>`;
+                        tabla.innerHTML = `<tr><td colspan="5" class="px-5 py-4 text-center text-slate-500">No hay trabajadores activos en CKPool.</td></tr>`;
                     }
                 }
             } catch (error) {
-                console.error("Error cargando BTC:", error);
+                console.error("Error en proxy BTC:", error);
             }
         }
 
-        // Utilidad para limpiar los textos de velocidad de CKPool (ej: "1.20TH/s" -> "1.20")
-        function parseCKPoolHashrate(hashString) {
-            return hashString.replace(/[a-zA-Z\/]/g, '').trim();
-        }
-
-        // Bucle de sincronización automática (Cada 15 segundos)
         function iniciarSincronizacion() {
             fetchBCHData();
             fetchBTCData();
-            
+                        
             setInterval(() => {
                 document.getElementById('live-clock').innerText = "Sincronizado: " + new Date().toLocaleTimeString();
                 fetchBCHData();
@@ -297,7 +277,6 @@
             }, 15000); 
         }
 
-        // Inicializar al cargar la página
         window.onload = () => {
             iniciarSincronizacion();
         };
