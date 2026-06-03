@@ -27,31 +27,34 @@ function renderPools() {
             <h3>${pool.name}</h3>
             <div class="data-line"><strong>Hashrate:</strong> <span class="hashrate">Cargando...</span></div>
             <div class="data-line"><strong>Balance:</strong> <span class="balance">Cargando...</span></div>
-            <div class="data-line" style="font-size:0.8rem; color:#ff5252;"><span class="error-msg"></span></div>
+            <div class="data-line" style="font-size:0.85rem; color:#ff5252; margin-top:10px;"><span class="error-msg"></span></div>
             <button class="delete-btn" onclick="deletePool(${index})">Eliminar Pool</button>
         `;
         container.appendChild(card);
 
-        // Usamos el Proxy Público AllOrigins para saltar el CORS directamente desde el navegador
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(pool.url)}`;
 
         fetch(proxyUrl)
             .then(res => {
-                if (!res.ok) throw new Error('Error de red al contactar el proxy');
+                if (!res.ok) throw new Error('El proxy no responde.');
                 return res.json();
             })
             .then(proxyData => {
-                // AllOrigins envuelve la respuesta del pool dentro de la propiedad "contents" en formato texto
-                if (!proxyData.contents) throw new Error('El pool no devolvió datos legibles');
+                if (!proxyData.contents) throw new Error('El pool no devolvió datos.');
                 
-                // Convertimos el texto del pool a un objeto JSON real
-                const data = JSON.parse(proxyData.contents);
-                console.log(`Estructura de ${pool.name}:`, data);
+                // Intentamos procesar el JSON de forma segura
+                let data;
+                try {
+                    data = JSON.parse(proxyData.contents);
+                } catch (e) {
+                    // Si falla aquí, es porque el usuario metió una página web HTML en vez de una API JSON
+                    throw new Error('❌ Pusiste la URL de la web, no la URL de la API del pool.');
+                }
                 
-                // Buscador de datos
                 let hashrate = 'No encontrado';
                 let balance = 'No encontrado';
 
+                // Buscador de datos en el JSON
                 if (data.hashrate !== undefined) hashrate = data.hashrate;
                 else if (data.stats?.hashrate !== undefined) hashrate = data.stats.hashrate;
                 else if (data.data?.hashrate !== undefined) hashrate = data.data.hashrate;
@@ -67,8 +70,8 @@ function renderPools() {
             })
             .catch(err => {
                 card.classList.add('error-card');
-                card.querySelector('.hashrate').innerText = '❌ Error';
-                card.querySelector('.balance').innerText = '❌ Error';
+                card.querySelector('.hashrate').innerText = 'Error';
+                card.querySelector('.balance').innerText = 'Error';
                 card.querySelector('.error-msg').innerText = err.message;
             });
     });
