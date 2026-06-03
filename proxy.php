@@ -15,10 +15,8 @@ if (empty($pool) || empty($wallet)) {
 if ($pool === 'bch') {
     $url = "https://bchnode.solomining.io/api/wallet/" . urlencode($wallet);
 } elseif ($pool === 'btc') {
-    $url = "https://solostats.ckpool.org/api/user/" . urlencode($wallet);
-} else {
-    echo json_encode(["error" => "Pool no soportada."]);
-    exit;
+    // URL corregida y sincronizada con stats.ckpool.org
+    $url = "https://stats.ckpool.org/api/user/" . urlencode($wallet);
 }
 
 // Hacer la petición a la API real desde el servidor
