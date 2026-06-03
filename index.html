@@ -1,8 +1,33 @@
-<section id="config">
-    <h2>Añadir nueva vinculación</h2>
-    <input type="text" id="poolName" placeholder="Nombre (ej: 2Miners ETH)">
-    <!-- Aquí pedimos la URL base de la API, ej: https://eth.2miners.com/api/accounts/ -->
-    <input type="text" id="apiUrl" placeholder="URL API Pool (sin la wallet)">
-    <input type="text" id="walletAddr" placeholder="Dirección Wallet">
-    <button onclick="addEntry()">Añadir</button>
-</section>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Pool Monitor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Mining Dashboard</h1>
+    </header>
+
+    <main>
+        <section id="config">
+            <h2>Añadir Pool</h2>
+            <form id="pool-form">
+                <input type="text" id="pool-name" placeholder="Nombre (Ej: Ethermine)" required>
+                <input type="url" id="pool-url" placeholder="API URL (JSON Endpoint)" required>
+                <button type="submit">Añadir Pool</button>
+            </form>
+        </section>
+
+        <section id="dashboard">
+            <h2>Tus Pools</h2>
+            <div id="pool-container" class="grid-container">
+                </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
