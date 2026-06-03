@@ -25,8 +25,8 @@ function renderPools() {
         card.id = `pool-${index}`;
         card.innerHTML = `
             <h3>${pool.name}</h3>
-            <div class="data-line"><strong>Hashrate:</strong> <span class="hashrate">Cargando...</span></div>
-            <div class="data-line"><strong>Balance:</strong> <span class="balance">Cargando...</span></div>
+            <div class="data-line"><strong>Hashrate (1h):</strong> <span class="hashrate">Cargando...</span></div>
+            <div class="data-line"><strong>Estado / Métrica:</strong> <span class="balance">Cargando...</span></div>
             <div class="data-line" style="font-size:0.85rem; color:#ff5252; margin-top:10px;"><span class="error-msg"></span></div>
             <button class="delete-btn" onclick="deletePool(${index})">Eliminar Pool</button>
         `;
@@ -36,37 +36,42 @@ function renderPools() {
 
         fetch(proxyUrl)
             .then(res => {
-                if (!res.ok) throw new Error('El proxy no responde.');
+                if (!res.ok) throw new Error('El proxy de red no responde.');
                 return res.json();
             })
             .then(proxyData => {
                 if (!proxyData.contents) throw new Error('El pool no devolvió datos.');
                 
-                // Intentamos procesar el JSON de forma segura
                 let data;
                 try {
                     data = JSON.parse(proxyData.contents);
                 } catch (e) {
-                    // Si falla aquí, es porque el usuario metió una página web HTML en vez de una API JSON
-                    throw new Error('❌ Pusiste la URL de la web, no la URL de la API del pool.');
+                    throw new Error('❌ URL incorrecta. Asegúrate de usar el enlace de la API, no de la web.');
                 }
                 
                 let hashrate = 'No encontrado';
                 let balance = 'No encontrado';
 
-                // Buscador de datos en el JSON
-                if (data.hashrate !== undefined) hashrate = data.hashrate;
-                else if (data.stats?.hashrate !== undefined) hashrate = data.stats.hashrate;
-                else if (data.data?.hashrate !== undefined) hashrate = data.data.hashrate;
-                else if (data.currentHashrate !== undefined) hashrate = data.currentHashrate;
+                // --- DETECTOR ESPECÍFICO PARA CKPOOL ---
+                if (data.hashrate1hr !== undefined) {
+                    hashrate = data.hashrate1hr; // CKPool ya lo da en texto (ej: "12T")
+                    balance = data.bestshare !== undefined ? `Best Share: ${Number(data.bestshare).toLocaleString()}` : 'Solo Pool (0)';
+                } 
+                // --- DETECTOR PARA OTROS POOLS GENÉRICOS ---
+                else {
+                    if (data.hashrate !== undefined) hashrate = formatGenericHashrate(data.hashrate);
+                    else if (data.stats?.hashrate !== undefined) hashrate = formatGenericHashrate(data.stats.hashrate);
+                    else if (data.data?.hashrate !== undefined) hashrate = formatGenericHashrate(data.data.hashrate);
+                    else if (data.currentHashrate !== undefined) hashrate = formatGenericHashrate(data.currentHashrate);
 
-                if (data.balance !== undefined) balance = data.balance;
-                else if (data.stats?.balance !== undefined) balance = data.stats.balance;
-                else if (data.data?.balance !== undefined) balance = data.data.balance;
-                else if (data.unpaid !== undefined) balance = data.unpaid;
+                    if (data.balance !== undefined) balance = formatGenericBalance(data.balance);
+                    else if (data.stats?.balance !== undefined) balance = formatGenericBalance(data.stats.balance);
+                    else if (data.data?.balance !== undefined) balance = formatGenericBalance(data.data.balance);
+                    else if (data.unpaid !== undefined) balance = formatGenericBalance(data.unpaid);
+                }
 
-                card.querySelector('.hashrate').innerText = formatHashrate(hashrate);
-                card.querySelector('.balance').innerText = formatBalance(balance);
+                card.querySelector('.hashrate').innerText = hashrate;
+                card.querySelector('.balance').innerText = balance;
             })
             .catch(err => {
                 card.classList.add('error-card');
@@ -77,7 +82,8 @@ function renderPools() {
     });
 }
 
-function formatHashrate(hash) {
+// Formateador para pools tradicionales que envían números crudos
+function formatGenericHashrate(hash) {
     if (isNaN(hash) || hash === 'No encontrado') return hash;
     if (hash > 1e9) return (hash / 1e9).toFixed(2) + ' GH/s';
     if (hash > 1e6) return (hash / 1e6).toFixed(2) + ' MH/s';
@@ -85,7 +91,7 @@ function formatHashrate(hash) {
     return hash + ' H/s';
 }
 
-function formatBalance(bal) {
+function formatGenericBalance(bal) {
     if (isNaN(bal) || bal === 'No encontrado') return bal;
     if (bal > 1000000) return (bal / 1e8).toFixed(5); 
     return bal;
