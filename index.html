@@ -1,25 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard de Minería</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1>Monitor de Minería</h1>
-    
-    <section id="config">
-        <h2>Gestionar Pools/Wallets</h2>
-        <input type="text" id="poolName" placeholder="Nombre (ej: Ethermine)">
-        <input type="text" id="walletAddr" placeholder="Dirección Wallet">
-        <button onclick="addEntry()">Añadir</button>
-    </section>
-
-    <section id="data">
-        <button onclick="updateData()">Actualizar Datos</button>
-        <div id="minerList"></div>
-    </section>
-
-    <script src="script.js"></script>
-</body>
-</html>
+<section id="config">
+    <h2>Añadir nueva vinculación</h2>
+    <input type="text" id="poolName" placeholder="Nombre (ej: 2Miners ETH)">
+    <!-- Aquí pedimos la URL base de la API, ej: https://eth.2miners.com/api/accounts/ -->
+    <input type="text" id="apiUrl" placeholder="URL API Pool (sin la wallet)">
+    <input type="text" id="walletAddr" placeholder="Dirección Wallet">
+    <button onclick="addEntry()">Añadir</button>
+</section>
