@@ -37,57 +37,79 @@ function renderPools() {
         `;
         container.appendChild(card);
 
-        const errorBox = card.querySelector('.error-msg').parentElement;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(pool.url)}&nocache=${Date.now()}`;
-
-        fetch(proxyUrl)
-            .then(res => {
-                if (!res.ok) throw new Error('El proxy AllOrigins no responde (Error de red).');
-                return res.json();
-            })
-            .then(proxyData => {
-                if (!proxyData.contents) throw new Error('El proxy no pudo leer los datos del pool.');
-                
-                let data;
-                try {
-                    data = JSON.parse(proxyData.contents);
-                } catch (e) {
-                    throw new Error('El pool devolvió una página web (HTML) en lugar de datos de API (JSON).');
-                }
-                
-                // Si la API del pool responde pero trae un mensaje de error interno
-                if (data.error) {
-                    throw new Error(`El pool dice: "${data.error}". (Si usas CKPool, esto pasa si tu billetera no está minando activamente en este momento).`);
-                }
-
-                let hashrate = 'No encontrado';
-                let balance = 'No encontrado';
-
-                // --- PROCESADOR CKPOOL ---
-                if (data.hashrate1hr !== undefined) {
-                    hashrate = data.hashrate1hr || '0 H/s';
-                    balance = data.bestshare !== undefined ? `Best Share: ${Number(data.bestshare).toLocaleString()}` : 'Solo Pool';
-                } 
-                // --- PROCESADOR GENERAL (Otros pools) ---
-                else {
-                    if (data.hashrate !== undefined) hashrate = formatGenericHashrate(data.hashrate);
-                    else if (data.stats?.hashrate !== undefined) hashrate = formatGenericHashrate(data.stats.hashrate);
-                    
-                    if (data.balance !== undefined) balance = formatGenericBalance(data.balance);
-                    else if (data.stats?.balance !== undefined) balance = formatGenericBalance(data.stats.balance);
-                }
-
-                card.querySelector('.hashrate').innerText = hashrate;
-                card.querySelector('.balance').innerText = balance;
-            })
-            .catch(err => {
-                card.classList.add('error-card');
-                card.querySelector('.hashrate').innerText = '❌ Error';
-                card.querySelector('.balance').innerText = '❌ Inalcanzable';
-                card.querySelector('.error-msg').innerText = err.message;
-                errorBox.style.display = 'block';
-            });
+        // Llamamos a la función encargada de consultar los proxies de forma inteligente
+        fetchWithFallback(pool.url, card);
     });
+}
+
+// Función con sistema de respaldo (Fallback) si un proxy falla
+async function fetchWithFallback(poolUrl, card) {
+    const errorBox = card.querySelector('.error-msg').parentElement;
+    
+    // Lista de proxies públicos disponibles
+    const proxyUrl1 = `https://api.allorigins.win/get?url=${encodeURIComponent(poolUrl)}&nocache=${Date.now()}`;
+    const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(poolUrl)}`;
+
+    // INTENTO 1: Con AllOrigins
+    try {
+        const res = await fetch(proxyUrl1);
+        if (!res.ok) throw new Error("Proxy 1 saturado");
+        const proxyData = await res.json();
+        if (!proxyData.contents) throw new Error("Datos vacíos");
+        
+        const data = JSON.parse(proxyData.contents);
+        procesarDatosPool(data, card);
+        return; // Éxito, salimos de la función
+    } catch (err) {
+        console.warn("Proxy 1 falló, intentando Proxy de respaldo...", err.message);
+    }
+
+    // INTENTO 2: Con CorsProxy (Respaldo automático si el primero falla)
+    try {
+        const res = await fetch(proxyUrl2);
+        if (!res.ok) throw new Error("El proxy de respaldo también falló.");
+        const data = await res.json(); // CorsProxy devuelve el JSON directo, sin envolverlo
+        
+        procesarDatosPool(data, card);
+    } catch (err) {
+        // Si ambos fallan, mostramos el error en pantalla
+        card.classList.add('error-card');
+        card.querySelector('.hashrate').innerText = '❌ Error';
+        card.querySelector('.balance').innerText = '❌ Inalcanzable';
+        card.querySelector('.error-msg').innerText = "Ningún proxy de red responde. Inténtalo de nuevo en unos minutos o verifica la URL.";
+        errorBox.style.display = 'block';
+    }
+}
+
+// Procesa el JSON extraído del pool
+function procesarDatosPool(data, card) {
+    const errorBox = card.querySelector('.error-msg').parentElement;
+    
+    if (data.error) {
+        throw new Error(`El pool dice: "${data.error}". Tu minero podría estar inactivo.`);
+    }
+
+    let hashrate = 'No encontrado';
+    let balance = 'No encontrado';
+
+    // --- PROCESADOR CKPOOL ---
+    if (data.hashrate1hr !== undefined) {
+        hashrate = data.hashrate1hr || '0 H/s';
+        balance = data.bestshare !== undefined ? `Best Share: ${Number(data.bestshare).toLocaleString()}` : 'Solo Pool';
+    } 
+    // --- PROCESADOR GENERAL ---
+    else {
+        if (data.hashrate !== undefined) hashrate = formatGenericHashrate(data.hashrate);
+        else if (data.stats?.hashrate !== undefined) hashrate = formatGenericHashrate(data.stats.hashrate);
+        
+        if (data.balance !== undefined) balance = formatGenericBalance(data.balance);
+        else if (data.stats?.balance !== undefined) balance = formatGenericBalance(data.stats.balance);
+    }
+
+    card.querySelector('.hashrate').innerText = hashrate;
+    card.querySelector('.balance').innerText = balance;
+    card.classList.remove('error-card');
+    errorBox.style.display = 'none';
 }
 
 function formatGenericHashrate(hash) {
