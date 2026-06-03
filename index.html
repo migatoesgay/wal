@@ -164,8 +164,8 @@
         const WALLET_BCH = "1JEyZ9Ji9i76AyW7gFK92zgdJjzsUfrTXz";
         const WALLET_BTC = "bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl";
 
-        // Apunta directamente a tu propio servidor local
-        const PROXY_LOCAL = "proxy.php";
+        // Proxy compatible para GitHub Pages (Utiliza AllOrigins seguro sobre HTTPS)
+        const PROXY = "https://api.allorigins.win/get?url=";
 
         function switchTab(miner) {
             const panelBch = document.getElementById('panel-bch');
@@ -188,12 +188,14 @@
 
         async function fetchBCHData() {
             try {
-                // Llamada a tu propio proxy PHP
-                const respuesta = await fetch(`${PROXY_LOCAL}?pool=bch&wallet=${WALLET_BCH}`);
-                const datos = await respuesta.json();
+                const urlReal = `https://bchnode.solomining.io/api/wallet/${WALLET_BCH}`;
+                const respuesta = await fetch(PROXY + encodeURIComponent(urlReal));
+                const wrapper = await respuesta.json();
+                
+                // Extraer el contenido de AllOrigins y convertirlo en objeto legible
+                const datos = JSON.parse(wrapper.contents);
 
-                if (datos && !datos.error) {
-                    // Conversión de Hashes puros a TH/s (división entre 10^12)
+                if (datos) {
                     const hashrate5m = (datos.hashrate || 0) / 1000000000000; 
                     const hashrate24h = (datos.avgHashrate24h || 0) / 1000000000000;
 
@@ -223,17 +225,21 @@
                     }
                 }
             } catch (error) {
-                console.error("Error en proxy BCH:", error);
+                console.error("Error en BCH:", error);
             }
         }
 
         async function fetchBTCData() {
             try {
-                // Llamada a tu propio proxy PHP
-                const respuesta = await fetch(`${PROXY_LOCAL}?pool=btc&wallet=${WALLET_BTC}`);
-                const datos = await respuesta.json();
+                // Utilizando la API sincronizada con stats.ckpool.org
+                const urlReal = `https://stats.ckpool.org/api/user/${WALLET_BTC}`;
+                const respuesta = await fetch(PROXY + encodeURIComponent(urlReal));
+                const wrapper = await respuesta.json();
+                
+                // Extraer el contenido de AllOrigins y convertirlo en objeto legible
+                const datos = JSON.parse(wrapper.contents);
 
-                if (datos && !datos.error) {
+                if (datos) {
                     document.getElementById('btc-hashrate-5m').innerText = datos.hashrate5m || "0.00";
                     document.getElementById('btc-hashrate-24h').innerText = datos.hashrate24h || "0.00";
                     document.getElementById('btc-best-share').innerText = datos.bestshare || "0";
@@ -262,7 +268,7 @@
                     }
                 }
             } catch (error) {
-                console.error("Error en proxy BTC:", error);
+                console.error("Error en BTC:", error);
             }
         }
 
