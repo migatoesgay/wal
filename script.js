@@ -1,43 +1,31 @@
-let entries = JSON.parse(localStorage.getItem('miners')) || [];
-
+// Añadir entry guardando la URL de la API
 function addEntry() {
     const name = document.getElementById('poolName').value;
+    const apiUrl = document.getElementById('apiUrl').value;
     const addr = document.getElementById('walletAddr').value;
-    if (name && addr) {
-        entries.push({ name, addr });
+    
+    if (name && apiUrl && addr) {
+        entries.push({ name, apiUrl, addr });
         localStorage.setItem('miners', JSON.stringify(entries));
         render();
     }
 }
 
-function deleteEntry(index) {
-    entries.splice(index, 1);
-    localStorage.setItem('miners', JSON.stringify(entries));
-    render();
-}
-
-function render() {
-    const list = document.getElementById('minerList');
-    list.innerHTML = entries.map((e, i) => `
-        <div class="card">
-            <strong>${e.name}</strong> - ${e.addr}
-            <span class="delete-btn" onclick="deleteEntry(${i})">Eliminar</span>
-            <div id="status-${i}">Esperando actualización...</div>
-        </div>
-    `).join('');
-}
-
-// Función para conectar a la API (Ejemplo genérico)
+// Función actualizada para consultar la API real
 async function updateData() {
     entries.forEach(async (e, i) => {
         const el = document.getElementById(`status-${i}`);
-        el.innerText = "Cargando...";
-        // Aquí realizarías un fetch a la API de tu pool
-        // Ejemplo: fetch(`https://api.pool.com/miner/${e.addr}`)
-        setTimeout(() => {
-            el.innerText = "Hashrate: 120 MH/s | Balance: 0.05 ETH";
-        }, 1000);
+        el.innerText = "Consultando...";
+        
+        try {
+            // Construimos la URL: URL Base + Wallet
+            const response = await fetch(`${e.apiUrl}${e.addr}`);
+            const data = await response.json();
+            
+            // Ajusta esto según el formato de JSON de tu pool (ej: data.hashrate, data.balance)
+            el.innerHTML = `Hashrate: ${data.hashrate} | Balance: ${data.balance}`;
+        } catch (error) {
+            el.innerText = "Error al conectar con la API";
+        }
     });
 }
-
-render();
