@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Pool Monitor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Mining Dashboard</h1>
+    </header>
+
+    <main>
+        <section id="config">
+            <h2>Añadir Pool de Minería</h2>
+            <form id="pool-form">
+                <input type="text" id="pool-name" placeholder="Nombre (Ej: 2Miners ETC)" required>
+                <input type="url" id="pool-url" placeholder="API URL del Pool (Ej: https://etc.2miners.com/api/accounts/TU_BILLETERA)" required>
+                <button type="submit">Añadir Pool</button>
+            </form>
+        </section>
+
+        <section id="dashboard">
+            <h2>Tus Pools en Tiempo Real</h2>
+            <div id="pool-container" class="grid-container">
+                </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
