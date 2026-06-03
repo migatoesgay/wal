@@ -6,7 +6,6 @@
     <title>Multi-Crypto Mining Dashboard (REAL)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
 
@@ -164,8 +163,8 @@
         const WALLET_BCH = "1JEyZ9Ji9i76AyW7gFK92zgdJjzsUfrTXz";
         const WALLET_BTC = "bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl";
 
-        // Proxy compatible para GitHub Pages (Utiliza AllOrigins seguro sobre HTTPS)
-        const PROXY = "https://api.allorigins.win/get?url=";
+        // Cambiado a un Proxy de grado de producción mucho más rápido para GitHub Pages
+        const PROXY = "https://corsproxy.io/?";
 
         function switchTab(miner) {
             const panelBch = document.getElementById('panel-bch');
@@ -190,10 +189,7 @@
             try {
                 const urlReal = `https://bchnode.solomining.io/api/wallet/${WALLET_BCH}`;
                 const respuesta = await fetch(PROXY + encodeURIComponent(urlReal));
-                const wrapper = await respuesta.json();
-                
-                // Extraer el contenido de AllOrigins y convertirlo en objeto legible
-                const datos = JSON.parse(wrapper.contents);
+                const datos = await respuesta.json();
 
                 if (datos) {
                     const hashrate5m = (datos.hashrate || 0) / 1000000000000; 
@@ -231,13 +227,9 @@
 
         async function fetchBTCData() {
             try {
-                // Utilizando la API sincronizada con stats.ckpool.org
                 const urlReal = `https://stats.ckpool.org/api/user/${WALLET_BTC}`;
                 const respuesta = await fetch(PROXY + encodeURIComponent(urlReal));
-                const wrapper = await respuesta.json();
-                
-                // Extraer el contenido de AllOrigins y convertirlo en objeto legible
-                const datos = JSON.parse(wrapper.contents);
+                const datos = await respuesta.json();
 
                 if (datos) {
                     document.getElementById('btc-hashrate-5m').innerText = datos.hashrate5m || "0.00";
