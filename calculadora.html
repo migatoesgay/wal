@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Minería Solo</title>
+    <title>Calculadora de Minería Solo Pro</title>
     <style>
         :root { --btc: #f7931a; --bch: #8dc351; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
@@ -18,7 +18,9 @@
         input, select { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #334155; color: white; box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: var(--border-color); color: white; transition: 0.3s; }
         button:hover { filter: brightness(1.2); }
-        .res { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); text-align: center; }
+        .res { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); font-size: 0.9rem; }
+        .res table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .res td { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
@@ -31,10 +33,8 @@
             <div class="row">
                 <input type="number" id="btcHashVal" placeholder="Ej: 100">
                 <select id="btcHashUnit">
-                    <option value="0.001">GH/s</option>
-                    <option value="1" selected>TH/s</option>
-                    <option value="1000">PH/s</option>
-                    <option value="1000000">EH/s</option>
+                    <option value="0.001">GH/s</option><option value="1" selected>TH/s</option>
+                    <option value="1000">PH/s</option><option value="1000000">EH/s</option>
                 </select>
             </div>
         </div>
@@ -43,14 +43,12 @@
             <div class="row">
                 <input type="number" id="btcNetVal" placeholder="Cargando...">
                 <select id="btcNetUnit">
-                    <option value="0.001">GH/s</option>
-                    <option value="1" selected>TH/s</option>
-                    <option value="1000">PH/s</option>
-                    <option value="1000000">EH/s</option>
+                    <option value="0.001">GH/s</option><option value="1" selected>TH/s</option>
+                    <option value="1000">PH/s</option><option value="1000000">EH/s</option>
                 </select>
             </div>
         </div>
-        <button onclick="calcular('BTC')">Calcular Probabilidad</button>
+        <button onclick="calcular('BTC')">Calcular Probabilidades</button>
         <div id="resBTC" class="res">Ingresa los datos</div>
     </div>
 
@@ -61,26 +59,22 @@
             <div class="row">
                 <input type="number" id="bchHashVal" placeholder="Ej: 100">
                 <select id="bchHashUnit">
-                    <option value="0.001">GH/s</option>
-                    <option value="1" selected>TH/s</option>
-                    <option value="1000">PH/s</option>
-                    <option value="1000000">EH/s</option>
+                    <option value="0.001">GH/s</option><option value="1" selected>TH/s</option>
+                    <option value="1000">PH/s</option><option value="1000000">EH/s</option>
                 </select>
             </div>
         </div>
         <div class="input-group">
             <label>Hashrate Red</label>
             <div class="row">
-                <input type="number" id="bchNetVal" placeholder="Ingresa valor manual">
+                <input type="number" id="bchNetVal" placeholder="Manual">
                 <select id="bchNetUnit">
-                    <option value="0.001">GH/s</option>
-                    <option value="1" selected>TH/s</option>
-                    <option value="1000">PH/s</option>
-                    <option value="1000000">EH/s</option>
+                    <option value="0.001">GH/s</option><option value="1" selected>TH/s</option>
+                    <option value="1000">PH/s</option><option value="1000000">EH/s</option>
                 </select>
             </div>
         </div>
-        <button onclick="calcular('BCH')">Calcular Probabilidad</button>
+        <button onclick="calcular('BCH')">Calcular Probabilidades</button>
         <div id="resBCH" class="res">Ingresa los datos</div>
     </div>
 </div>
@@ -88,27 +82,29 @@
 <script>
     async function init() {
         try {
-            // Carga automática solo para BTC
             const btcRes = await fetch('https://blockchain.info/q/hashrate?cors=true');
             const data = await btcRes.text();
             document.getElementById('btcNetVal').value = (data / 1000).toFixed(2);
-        } catch (e) { 
-            console.log("Carga automática BTC no disponible."); 
-        }
+        } catch (e) { console.log("Carga automática BTC no disponible."); }
     }
 
     function calcular(t) {
-        // Conversión a una unidad base común (TH/s) para realizar el cálculo
         const user = parseFloat(document.getElementById(t.toLowerCase() + 'HashVal').value) * parseFloat(document.getElementById(t.toLowerCase() + 'HashUnit').value);
         const net = parseFloat(document.getElementById(t.toLowerCase() + 'NetVal').value) * parseFloat(document.getElementById(t.toLowerCase() + 'NetUnit').value);
 
-        if (!user || !net) return alert("Por favor ingresa valores válidos en ambos campos.");
+        if (!user || !net) return alert("Por favor ingresa valores válidos.");
         
-        // Cálculo de probabilidad en 24 horas (basado en 144 bloques diarios)
-        const prob = (1 - Math.pow((1 - (user / net)), 144)) * 100;
+        const pPerBlock = user / net;
+        const periods = { "1 Día": 144, "1 Semana": 1008, "1 Mes": 4320, "1 Año": 52560 };
         
-        document.getElementById('res' + t).innerHTML = `Probabilidad (24h):<br>
-            <strong style="font-size: 1.3rem">${prob.toFixed(6)}%</strong>`;
+        let html = "<table>";
+        for (let period in periods) {
+            const prob = (1 - Math.pow((1 - pPerBlock), periods[period])) * 100;
+            html += `<tr><td>${period}:</td><td align="right"><strong>${prob.toFixed(6)}%</strong></td></tr>`;
+        }
+        html += "</table>";
+        
+        document.getElementById('res' + t).innerHTML = html;
     }
 
     init();
