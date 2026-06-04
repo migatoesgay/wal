@@ -50,7 +50,36 @@
     </div>
 </div>
 
+
+
 <script>
+// Función que consulta a tu proxy y actualiza la web
+async function actualizarDashboard() {
+    try {
+        // Llamada a tu servidor intermedio
+        const response = await fetch('http://localhost:3000/datos-mineria');
+        const data = await response.json();
+
+        // Inyectamos los datos en los elementos HTML correspondientes
+        document.getElementById('bch-hr').innerText = data.hashrate;
+        document.getElementById('bch-w').innerText = data.workers;
+        document.getElementById('last-update').innerText = "Última actualización: " + data.timestamp;
+        
+        console.log("Datos actualizados correctamente.");
+    } catch (error) {
+        console.error("No se pudo conectar con el servidor de datos:", error);
+    }
+}
+
+// Actualizar al cargar y luego cada 10 minutos
+window.onload = actualizarDashboard;
+setInterval(actualizarDashboard, 600000); 
+</script>
+
+
+<script>
+
+    
 // DATOS DEFINIDOS (puedes cambiarlos aquí manualmente)
 const SNAPSHOT_DATA = {
     bch: { hr: "1.25 TH/s", w: "3" },
