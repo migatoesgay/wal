@@ -4,98 +4,86 @@
     <meta charset="UTF-8">
     <title>Calculadora de Minería Solo</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-        .container { display: flex; gap: 20px; flex-wrap: wrap; }
-        .calc-box { flex: 1; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; min-width: 300px; }
-        .input-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.3rem; font-size: 0.9rem; }
-        input { width: 100%; padding: 0.5rem; box-sizing: border-box; }
-        button { width: 100%; color: white; border: none; padding: 0.7rem; cursor: pointer; margin-top: 0.5rem; }
-        .btn-btc { background: #f7931a; }
-        .btn-bch { background: #8dc351; }
-        .resultado { margin-top: 1rem; padding: 0.5rem; background: #f4f4f4; font-size: 0.9rem; }
-        #status { font-size: 0.8rem; color: #666; margin-bottom: 10px; }
+        :root { --btc: #f7931a; --bch: #8dc351; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
+        .dashboard { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: var(--card); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border-top: 4px solid var(--border-color); }
+        .btc { --border-color: var(--btc); }
+        .bch { --border-color: var(--bch); }
+        h2 { margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        .input-group { margin: 1.5rem 0; }
+        label { display: block; margin-bottom: 0.5rem; opacity: 0.8; font-size: 0.85rem; }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #334155; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: transform 0.2s; background: var(--border-color); color: white; }
+        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .res { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); text-align: center; font-weight: bold; }
+        #status { grid-column: span 2; text-align: center; padding: 10px; font-size: 0.9rem; color: #94a3b8; }
     </style>
 </head>
 <body>
 
-    <h1>Calculadora de Probabilidad Solo Mining</h1>
-    <p id="status">Cargando datos de la red...</p>
+<div class="dashboard">
+    <div id="status">Conectando con la red...</div>
     
-    <div class="container">
-        <div class="calc-box">
-            <h2 style="color: #f7931a;">Bitcoin (BTC)</h2>
-            <div class="input-group">
-                <label>Tu Hashrate (TH/s):</label>
-                <input type="number" id="btcHash" placeholder="Ej: 100">
-            </div>
-            <div class="input-group">
-                <label>Hashrate Red BTC (TH/s):</label>
-                <input type="number" id="btcNet" readonly>
-            </div>
-            <button class="btn-btc" onclick="calcular('BTC')">Calcular BTC</button>
-            <div id="resBTC" class="resultado"></div>
+    <div class="card btc">
+        <h2>Bitcoin (BTC)</h2>
+        <div class="input-group">
+            <label>Tu Hashrate (TH/s)</label>
+            <input type="number" id="btcHash" placeholder="Ej: 100">
         </div>
-
-        <div class="calc-box">
-            <h2 style="color: #8dc351;">Bitcoin Cash (BCH)</h2>
-            <div class="input-group">
-                <label>Tu Hashrate (TH/s):</label>
-                <input type="number" id="bchHash" placeholder="Ej: 100">
-            </div>
-            <div class="input-group">
-                <label>Hashrate Red BCH (TH/s):</label>
-                <input type="number" id="bchNet" readonly>
-            </div>
-            <button class="btn-bch" onclick="calcular('BCH')">Calcular BCH</button>
-            <div id="resBCH" class="resultado"></div>
+        <div class="input-group">
+            <label>Red (TH/s)</label>
+            <input type="number" id="btcNet" readonly>
         </div>
+        <button onclick="calcular('BTC')">Calcular Probabilidad</button>
+        <div id="resBTC" class="res">Ingresa tus datos</div>
     </div>
 
-    <script>
-        async function fetchNetworkHashrates() {
-            const statusEl = document.getElementById('status');
+    <div class="card bch">
+        <h2>Bitcoin Cash (BCH)</h2>
+        <div class="input-group">
+            <label>Tu Hashrate (TH/s)</label>
+            <input type="number" id="bchHash" placeholder="Ej: 100">
+        </div>
+        <div class="input-group">
+            <label>Red (TH/s)</label>
+            <input type="number" id="bchNet" readonly>
+        </div>
+        <button onclick="calcular('BCH')">Calcular Probabilidad</button>
+        <div id="resBCH" class="res">Ingresa tus datos</div>
+    </div>
+</div>
+
+<script>
+    async function init() {
+        const status = document.getElementById('status');
+        try {
+            // BTC API
+            const btcRes = await fetch('https://blockchain.info/q/hashrate?cors=true');
+            document.getElementById('btcNet').value = (await btcRes.text() / 1000).toFixed(2);
+
+            // BCH API usando CORS Proxy para evitar bloqueos
+            const bchRes = await fetch('https://corsproxy.io/?https://api.blockchair.com/bitcoin-cash/stats');
+            const bchData = await bchRes.json();
+            document.getElementById('bchNet').value = (bchData.data.hash_rate_24h / 1e12).toFixed(2);
             
-            try {
-                // 1. Cargar BTC
-                const btcRes = await fetch('https://blockchain.info/q/hashrate?cors=true');
-                const btcHashGH = await btcRes.text();
-                document.getElementById('btcNet').value = (parseFloat(btcHashGH) / 1000).toFixed(2);
-
-                // 2. Cargar BCH
-                const bchRes = await fetch('https://api.blockchair.com/bitcoin-cash/stats');
-                const bchData = await bchRes.json();
-                if (bchData && bchData.data) {
-                    const bchHashTH = parseFloat(bchData.data.hash_rate_24h) / 1e12;
-                    document.getElementById('bchNet').value = bchHashTH.toFixed(2);
-                }
-
-                statusEl.innerText = "Datos actualizados correctamente.";
-            } catch (error) {
-                statusEl.innerText = "Error al cargar datos. Refresca la página.";
-                console.error("Error:", error);
-            }
+            status.innerText = "Datos de red actualizados correctamente.";
+        } catch (e) {
+            status.innerText = "Error: Verifica tu conexión.";
+            console.error(e);
         }
+    }
 
-        function calcular(tipo) {
-            const userHash = parseFloat(document.getElementById(tipo.toLowerCase() + 'Hash').value);
-            const netHash = parseFloat(document.getElementById(tipo.toLowerCase() + 'Net').value);
-            
-            if (isNaN(userHash) || userHash <= 0 || isNaN(netHash)) {
-                document.getElementById('res' + tipo).innerHTML = "Ingresa un hashrate válido.";
-                return;
-            }
+    function calcular(t) {
+        const user = parseFloat(document.getElementById(t.toLowerCase() + 'Hash').value) * 1e12;
+        const net = parseFloat(document.getElementById(t.toLowerCase() + 'Net').value) * 1e12;
+        if (!user || !net) return alert("Valores inválidos");
+        
+        const prob = (1 - Math.pow((1 - (user / net)), 144)) * 100;
+        document.getElementById('res' + t).innerHTML = `Probabilidad 24h: <br><span style="font-size: 1.5rem">${prob.toFixed(6)}%</span>`;
+    }
 
-            // Probabilidad en 24h (144 bloques aprox)
-            const probPerBlock = userHash / netHash;
-            const prob = 1 - Math.pow((1 - probPerBlock), 144);
-            
-            document.getElementById('res' + tipo).innerHTML = 
-                `Probabilidad (24h): <strong>${(prob * 100).toFixed(6)}%</strong>`;
-        }
-
-        // Iniciar
-        fetchNetworkHashrates();
-    </script>
+    init();
+</script>
 </body>
 </html>
