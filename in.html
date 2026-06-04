@@ -2,98 +2,65 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Crypto Mining Dashboard (Snapshot Edition)</title>
+    <title>Multi-Crypto Mining Dashboard (Snapshot Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Syne', sans-serif; background-color: #0f172a; color: #e2e8f0; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .snapshot-loading { opacity: 0.6; filter: grayscale(1); }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="p-4 lg:p-8">
+<body class="bg-slate-950 text-slate-100">
 
-    <header class="max-w-4xl mx-auto mb-8">
-        <h1 class="text-2xl font-bold text-white">Panel de Minería</h1>
-        <p id="status-bar" class="text-xs text-slate-400">Estado: Cargando...</p>
-    </header>
+<nav class="border-b border-slate-800 p-4">
+    <h1 class="text-lg font-bold">SoloMining Hub <span class="text-amber-400">Snapshot</span></h1>
+    <p class="text-xs text-slate-400" id="live-clock">Cargando...</p>
+</nav>
 
-    <main class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div id="card-btc" class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-            <h2 class="text-orange-400 font-bold mb-2">Bitcoin (BTC)</h2>
-            <div class="space-y-1">
-                <p>Hashrate: <span id="val-btc" class="mono font-bold text-lg">---</span></p>
-                <p class="text-[10px] text-slate-500" id="time-btc">Sin datos previos</p>
+<main class="max-w-7xl mx-auto p-6">
+    <div id="panel-bch" class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <h2 class="text-xl font-bold mb-4">Bitcoin Cash (BCH)</h2>
+        <p class="text-sm text-slate-400 mb-6">Última actualización: <span id="bch-update"></span></p>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-slate-950 p-4 rounded-xl">
+                <p class="text-xs text-slate-500">Hashrate 1m</p>
+                <p class="text-2xl font-mono text-amber-400" id="bch-hr1m">—</p>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-xl">
+                <p class="text-xs text-slate-500">Workers</p>
+                <p class="text-2xl font-mono text-orange-400" id="bch-workers">—</p>
             </div>
         </div>
+    </div>
+</main>
 
-        <div id="card-pp" class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-            <h2 class="text-cyan-400 font-bold mb-2">Public-Pool</h2>
-            <div class="space-y-1">
-                <p>Workers: <span id="val-pp" class="mono font-bold text-lg">---</span></p>
-                <p class="text-[10px] text-slate-500" id="time-pp">Sin datos previos</p>
-            </div>
-        </div>
-    </main>
+<script>
+// 1. INSTANTÁNEA DE DATOS (Modifica esto manualmente para actualizar)
+const DATA_SNAPSHOT = {
+    bch: {
+        hashrate1m: "1.25T",
+        workers: 1,
+        lastupdate: "04/06/2026 12:28",
+        chartData: [0.5, 0.8, 1.0, 1.1, 1.25]
+    }
+};
 
-    <script>
-        // Configuración de los endpoints
-        const CONFIG = {
-            btc: { url: 'https://mempool.space/api/v1/difficulty-adjustment', key: 'btc' },
-            pp: { url: 'https://public-pool.io/api/pool/stats', key: 'pp' }
-        };
+// 2. FUNCIÓN DE RENDERIZADO SIN ASINCRONÍA
+function initDashboard() {
+    // Reloj
+    document.getElementById('live-clock').innerText = new Date().toLocaleString('es-ES');
+    
+    // Cargar datos BCH
+    const d = DATA_SNAPSHOT.bch;
+    document.getElementById('bch-update').innerText = d.lastupdate;
+    document.getElementById('bch-hr1m').innerText = d.hashrate1m;
+    document.getElementById('bch-workers').innerText = d.workers;
 
-        // Función central de Snapshot
-        async function updateData(id, endpoint) {
-            const elVal = document.getElementById(`val-${id}`);
-            const elTime = document.getElementById(`time-${id}`);
-            const elCard = document.getElementById(`card-${id}`);
+    // Inicializar Gráfico con datos estáticos
+    const ctx = document.createElement('canvas'); // Simplificado para el ejemplo
+    // Aquí iría tu lógica de Chart.js previa usando d.chartData
+    console.log("Dashboard cargado con datos de snapshot.");
+}
 
-            // 1. CARGA INSTANTÁNEA: Recuperar del LocalStorage
-            const saved = localStorage.getItem(`snapshot_${id}`);
-            if (saved) {
-                const data = JSON.parse(saved);
-                renderizar(id, data);
-                elCard.classList.add('snapshot-loading');
-            }
-
-            // 2. ACTUALIZACIÓN EN SEGUNDO PLANO
-            try {
-                const response = await fetch(endpoint);
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-
-                // Guardar nuevo snapshot
-                localStorage.setItem(`snapshot_${id}`, JSON.stringify(data));
-                localStorage.setItem(`time_${id}`, new Date().toLocaleTimeString());
-
-                // Actualizar interfaz con datos frescos
-                renderizar(id, data);
-                elCard.classList.remove('snapshot-loading');
-                document.getElementById('status-bar').innerText = "Datos sincronizados";
-            } catch (err) {
-                console.error(`Error al actualizar ${id}`);
-                document.getElementById('status-bar').innerText = "Funcionando con datos en caché";
-            }
-        }
-
-        function renderizar(id, data) {
-            const elVal = document.getElementById(`val-${id}`);
-            const elTime = document.getElementById(`time-${id}`);
-            
-            // Lógica simple para extraer datos según la API
-            if(id === 'btc') elVal.innerText = (data.progressPercent).toFixed(2) + '%';
-            if(id === 'pp') elVal.innerText = data.activeWorkers + ' workers';
-            
-            elTime.innerText = "Última act: " + (localStorage.getItem(`time_${id}`) || "Recién");
-        }
-
-        // Ejecutar al cargar
-        window.onload = () => {
-            updateData('btc', CONFIG.btc.url);
-            updateData('pp', CONFIG.pp.url);
-        };
-    </script>
+// 3. EJECUCIÓN INICIAL AL CARGAR LA PÁGINA
+window.onload = initDashboard;
+</script>
 </body>
 </html>
