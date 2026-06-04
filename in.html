@@ -2,231 +2,96 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Crypto Mining Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght=400;700&family=Syne:wght=400;600;700;800&display=swap');
-        body { font-family: 'Syne', sans-serif; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-        .pulse-dot { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-slate-950">
+<body class="bg-slate-950 text-slate-200 p-8">
 
-    <header class="border-b border-slate-900 bg-slate-950/70 backdrop-blur-xl sticky top-0 z-50 px-4 lg:px-8 py-4 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-            <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <i class="fa-solid fa-cubes text-slate-950 text-xl animate-pulse"></i>
-            </div>
-            <div>
-                <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">MINING HUB</h1>
-                <p class="text-xs text-slate-500 font-medium tracking-wider uppercase mono flex items-center">
-                    <span class="h-2 w-2 rounded-full bg-emerald-500 inline-block mr-2 pulse-dot" id="status-dot"></span>
-                    <span id="status-text">Sincronizado</span>
-                </p>
-            </div>
-        </div>
-        <button id="btn-global-refresh" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 transition flex items-center space-x-2 text-sm font-semibold">
-            <i id="icon-refresh" class="fa-solid fa-rotate"></i>
-            <span>Refrescar</span>
-        </button>
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-white">Panel de Minería</h1>
+        <p id="status-display" class="text-sm text-slate-500">Iniciando sistema...</p>
     </header>
 
-    <main class="p-4 lg:p-8 max-w-7xl mx-auto space-y-8">
-        
-        <div class="flex flex-wrap gap-2 p-1.5 bg-slate-900/40 border border-slate-900 rounded-2xl backdrop-blur-md">
-            <button id="btn-tab-btc" onclick="switchTab('btc')" class="tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-transparent"></button>
-            <button id="btn-tab-bch" onclick="switchTab('bch')" class="tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-transparent"></button>
-            <button id="btn-tab-public-pool" onclick="switchTab('public-pool')" class="tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-transparent"></button>
-        </div>
+    <button onclick="refreshAll()" class="bg-blue-600 px-4 py-2 rounded-lg text-white font-bold mb-6 hover:bg-blue-500 transition">
+        Refrescar todos los datos
+    </button>
 
-        <div id="panel-btc" class="tab-panel hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-900/50 border border-slate-900 p-6 rounded-2xl">
-                    <p class="text-slate-400 text-sm font-medium mb-1">Precio BTC</p>
-                    <p id="btc-price" class="text-2xl font-bold mono text-amber-500">Cargando...</p>
-                </div>
-                <div class="bg-slate-900/50 border border-slate-900 p-6 rounded-2xl">
-                    <p class="text-slate-400 text-sm font-medium mb-1">Último Bloque</p>
-                    <p id="btc-block" class="text-2xl font-bold mono text-slate-200">Cargando...</p>
-                </div>
-                <div class="bg-slate-900/50 border border-slate-900 p-6 rounded-2xl">
-                    <p class="text-slate-400 text-sm font-medium mb-1">Dificultad</p>
-                    <p id="btc-diff" class="text-2xl font-bold mono text-slate-200">Cargando...</p>
-                </div>
+    <div id="dashboard" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+            <h2 class="text-xl font-bold text-orange-400 mb-4">Bitcoin (BTC)</h2>
+            <div id="btc-data" class="space-y-2">
+                <p>Hashrate 5m: <span id="btc-hr" class="font-mono font-bold">---</span></p>
+                <p>Workers: <span id="btc-workers" class="font-mono">---</span></p>
             </div>
         </div>
 
-        <div id="panel-bch" class="tab-panel hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-900/50 border border-slate-900 p-6 rounded-2xl">
-                    <p class="text-slate-400 text-sm font-medium mb-1">Precio BCH</p>
-                    <p id="bch-price" class="text-2xl font-bold mono text-emerald-500">Cargando...</p>
-                </div>
-                <div class="bg-slate-900/50 border border-slate-900 p-6 rounded-2xl">
-                    <p class="text-slate-400 text-sm font-medium mb-1">Último Bloque</p>
-                    <p id="bch-block" class="text-2xl font-bold mono text-slate-200">Cargando...</p>
-                </div>
-                <div class="bg-slate-900/50 border border-slate-900 p-6 rounded-2xl">
-                    <p class="text-slate-400 text-sm font-medium mb-1">Hashrate Red</p>
-                    <p id="bch-hashrate" class="text-2xl font-bold mono text-slate-200">Cargando...</p>
-                </div>
+        <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+            <h2 class="text-xl font-bold text-amber-400 mb-4">Bitcoin Cash (BCH)</h2>
+            <div id="bch-data" class="space-y-2">
+                <p>Hashrate 1m: <span id="bch-hr" class="font-mono font-bold">---</span></p>
+                <p>Status: <span id="bch-status" class="font-mono">---</span></p>
             </div>
         </div>
 
-        <div id="panel-public-pool" class="tab-panel hidden space-y-6">
-            <div class="bg-slate-900/50 border border-slate-900 p-6 rounded-2xl">
-                <h3 class="text-lg font-bold mb-4 text-cyan-400"><i class="fa-solid fa-server mr-2"></i>Estado de Public Pool</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-slate-400 text-sm">Mineros Activos</p>
-                        <p id="pp-workers" class="text-xl font-bold mono">Cargando...</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-400 text-sm">Hashrate Combinado</p>
-                        <p id="pp-hashrate" class="text-xl font-bold mono">Cargando...</p>
-                    </div>
-                </div>
+        <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+            <h2 class="text-xl font-bold text-cyan-400 mb-4">Public-Pool (BTC)</h2>
+            <div id="pp-data" class="space-y-2">
+                <p>Hashrate: <span id="pp-hr" class="font-mono font-bold">---</span></p>
+                <p>Workers: <span id="pp-workers" class="font-mono">---</span></p>
             </div>
         </div>
-
-    </main>
+    </div>
 
     <script>
-        const TAB_STYLES = {
-            btc:  { active: 'border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/5', inactive: 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200' },
-            bch:  { active: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-lg shadow-emerald-500/5', inactive: 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200' },
-            'public-pool': { active: 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-lg shadow-cyan-500/5', inactive: 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200' }
-        };
-
-        let currentTab = 'btc';
-
-        function switchTab(tab) {
-            currentTab = tab;
-            ['btc', 'bch', 'public-pool'].forEach(t => {
-                document.getElementById(`panel-${t}`).classList.add('hidden');
-                const btn = document.getElementById(`btn-tab-${t}`);
-                btn.className = `tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border ${TAB_STYLES[t].inactive}`;
-            });
+        // Función maestra para romper la caché del navegador
+        async function fetchWithCacheBusting(url) {
+            const timestamp = new Date().getTime();
+            const urlWithCacheBusting = `${url}${url.includes('?') ? '&' : '?'}t=${timestamp}`;
             
-            document.getElementById(`panel-${tab}`).classList.remove('hidden');
-            document.getElementById(`panel-${tab}`).classList.add('fade-in');
-            const activeBtn = document.getElementById(`btn-tab-${tab}`);
-            activeBtn.className = `tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border ${TAB_STYLES[tab].active}`;
-        }
-
-        // Configuración de inicialización de nombres en botones
-        document.getElementById('btn-tab-btc').innerHTML = '<i class="fa-brands fa-bitcoin"></i> <span>Bitcoin (BTC)</span>';
-        document.getElementById('btn-tab-bch').innerHTML = '<i class="fa-solid fa-money-bill-bitcoin"></i> <span>Bitcoin Cash (BCH)</span>';
-        document.getElementById('btn-tab-public-pool').innerHTML = '<i class="fa-solid fa-water"></i> <span>Public Pool</span>';
-
-        // ==========================================
-        // SOLUCIÓN CORE: FETCH ANTICACHÉ Y ACTUALIZACIÓN Real-Time
-        // ==========================================
-        
-        // Helper global para hacer fetch saltándose la caché
-        async function fetchFreshData(url) {
-            // Añadimos un parámetro de tiempo aleatorio dinámico (?_=[timestamp]) para engañar a la caché
-            const antiCacheUrl = `${url}${url.includes('?') ? '&' : '?'}?_=${new Date().getTime()}`;
-            
-            const respuesta = await fetch(antiCacheUrl, {
+            const response = await fetch(urlWithCacheBusting, {
                 method: 'GET',
-                cache: 'no-store', // Fuerza al navegador a ignorar su caché local
-                headers: {
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                }
+                headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
             });
-
-            if (!respuesta.ok) {
-                throw new Error(`HTTP error! status: ${respuesta.status}`);
-            }
-            return await respuesta.json();
-        }
-
-        async function updateDashboardData() {
-            const refreshIcon = document.getElementById('icon-refresh');
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
-
-            refreshIcon.classList.add('spin');
-            statusDot.className = "h-2 w-2 rounded-full bg-amber-500 inline-block mr-2 pulse-dot";
-            statusText.innerText = "Actualizando...";
-
-            try {
-                // 1. OBTENER DATOS DE BITCOIN (BTC) via Mempool.space (API pública y estable)
-                try {
-                    const btcBlockData = await fetchFreshData('https://mempool.space/api/blocks/tip/height');
-                    const btcPriceData = await fetchFreshData('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-                    const btcDifficultyData = await fetchFreshData('https://mempool.space/api/v1/difficulty-adjustment');
-
-                    document.getElementById('btc-block').innerText = `#${btcBlockData}`;
-                    document.getElementById('btc-price').innerText = `$${btcPriceData.bitcoin.usd.toLocaleString()}`;
-                    document.getElementById('btc-diff').innerText = `${(btcDifficultyData.progressPercent).toFixed(2)}% (Sig. Retarget)`;
-                } catch (e) {
-                    console.error("Error cargando datos de BTC:", e);
-                }
-
-                // 2. OBTENER DATOS DE BITCOIN CASH (BCH) via CoinGecko y Blockchair
-                try {
-                    const bchPriceData = await fetchFreshData('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
-                    const bchStats = await fetchFreshData('https://api.blockchair.com/bitcoin-cash/stats');
-
-                    document.getElementById('bch-price').innerText = `$${bchPriceData['bitcoin-cash'].usd.toLocaleString()}`;
-                    document.getElementById('bch-block').innerText = `#${bchStats.data.blocks}`;
-                    document.getElementById('bch-hashrate').innerText = `${(bchStats.data.hashrate_24h / 1e15).toFixed(2)} PH/s`;
-                } catch (e) {
-                    console.error("Error cargando datos de BCH:", e);
-                }
-
-                // 3. OBTENER DATOS DE PUBLIC POOL API
-                try {
-                    const poolData = await fetchFreshData('https://public-pool.io/api/pool/stats');
-                    
-                    document.getElementById('pp-workers').innerText = poolData.activeWorkers || '0';
-                    document.getElementById('pp-hashrate').innerText = poolData.poolHashrate ? `${(poolData.poolHashrate / 1e9).toFixed(2)} GH/s` : '0 GH/s';
-                } catch (e) {
-                    console.error("Error cargando datos de Public Pool:", e);
-                    document.getElementById('pp-workers').innerText = "Error API";
-                    document.getElementById('pp-hashrate').innerText = "Error API";
-                }
-
-                // Finalización exitosa
-                statusDot.className = "h-2 w-2 rounded-full bg-emerald-500 inline-block mr-2";
-                statusText.innerText = `Actualizado: ${new Date().toLocaleTimeString()}`;
-
-            } catch (globalError) {
-                console.error("Error general en el refresco:", globalError);
-                statusDot.className = "h-2 w-2 rounded-full bg-rose-500 inline-block mr-2";
-                statusText.innerText = "Error de sincronización";
-            } finally {
-                setTimeout(() => { refreshIcon.classList.remove('spin'); }, 800);
-            }
-        }
-
-        // ==========================================
-        // TEMPORIZADORES Y ACTIVADORES
-        // ==========================================
-
-        // Botón manual de refresco
-        document.getElementById('btn-global-refresh').addEventListener('click', updateDashboardData);
-
-        // Al cargar la página por primera vez
-        document.addEventListener('DOMContentLoaded', () => {
-            switchTab('btc'); // Activa la pestaña por defecto
-            updateDashboardData(); // Ejecuta la primera carga de servidores
             
-            // AUTOMATIZACIÓN: Actualiza los datos de los servidores automáticamente cada 30 segundos
-            setInterval(updateDashboardData, 30000); 
-        });
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            return await response.json();
+        }
+
+        async function refreshAll() {
+            document.getElementById('status-display').innerText = "Actualizando...";
+            
+            // 1. Carga BTC (Ejemplo con CKPool)
+            try {
+                const data = await fetchWithCacheBusting('https://eusolostats.ckpool.org/users/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl');
+                document.getElementById('btc-hr').innerText = data.hashrate5m;
+                document.getElementById('btc-workers').innerText = data.workers;
+            } catch (e) {
+                document.getElementById('btc-hr').innerText = "Error API";
+            }
+
+            // 2. Carga Public-Pool
+            try {
+                const data = await fetchWithCacheBusting('https://public-pool.io/api/client/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl');
+                document.getElementById('pp-hr').innerText = data.hashrate5m;
+                document.getElementById('pp-workers').innerText = data.workers;
+            } catch (e) {
+                document.getElementById('pp-hr').innerText = "Error API";
+            }
+
+            document.getElementById('status-display').innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
+        }
+
+        // Ejecutar al cargar
+        window.onload = refreshAll;
+        // Auto-refresco cada 60 segundos
+        setInterval(refreshAll, 60000);
     </script>
 </body>
 </html>
