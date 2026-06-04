@@ -2,72 +2,72 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Minería - Snapshot Mode</title>
+    <title>Mining Dashboard Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 p-8">
 
 <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Panel de Minería (Snapshot)</h1>
-    <p class="text-slate-400 mb-6" id="last-update">Actualizado: Cargando...</p>
+    <h1 class="text-3xl font-bold mb-6">Dashboard de Minería</h1>
+    <p class="text-slate-400 mb-6" id="status-text">Cargado en modo Snapshot</p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
             <h2 class="text-xl font-bold text-amber-400 mb-2">BCH (SoloMining)</h2>
             <div class="space-y-2">
-                <p>Hashrate: <span id="bch-hr" class="font-mono text-white">1.25 TH/s</span></p>
-                <p>Workers: <span id="bch-w" class="font-mono text-white">3</span></p>
+                <p>Hashrate: <span id="bch-hr" class="font-mono text-white">-</span></p>
+                <p>Workers: <span id="bch-w" class="font-mono text-white">-</span></p>
             </div>
         </div>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
             <h2 class="text-xl font-bold text-orange-400 mb-2">BTC (CKPool)</h2>
             <div class="space-y-2">
-                <p>Hashrate: <span id="btc-hr" class="font-mono text-white">500 GH/s</span></p>
-                <p>Workers: <span id="btc-w" class="font-mono text-white">2</span></p>
+                <p>Hashrate: <span id="btc-hr" class="font-mono text-white">-</span></p>
+                <p>Workers: <span id="btc-w" class="font-mono text-white">-</span></p>
             </div>
         </div>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
             <h2 class="text-xl font-bold text-emerald-400 mb-2">Public-Pool</h2>
             <div class="space-y-2">
-                <p>Hashrate: <span id="pp-hr" class="font-mono text-white">450 GH/s</span></p>
-                <p>Workers: <span id="pp-w" class="font-mono text-white">1</span></p>
+                <p>Hashrate: <span id="pp-hr" class="font-mono text-white">-</span></p>
+                <p>Workers: <span id="pp-w" class="font-mono text-white">-</span></p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// OBJETO DE DATOS: Actualiza estos valores cuando cambies tu configuración en los pools
-const DATA_SNAPSHOT = {
+// 1. DATOS DE INSTANTÁNEA (Snapshot)
+// Estos son los datos que se mostrarán siempre. 
+// Para "actualizarlos", solo cambia estos números aquí.
+const POOL_DATA = {
     bch: { hr: "1.25 TH/s", w: "3" },
-    btc: { hr: "500 GH/s", w: "2" }, // Corregido a 2 workers
+    btc: { hr: "500 GH/s", w: "2" }, // Aquí he configurado 2 como pediste
     pp:  { hr: "450 GH/s", w: "1" }
 };
 
-function updateUI() {
-    // Inyectar datos en los elementos
-    document.getElementById('bch-hr').innerText = DATA_SNAPSHOT.bch.hr;
-    document.getElementById('bch-w').innerText = DATA_SNAPSHOT.bch.w;
+function renderDashboard() {
+    // Inyectar datos en la UI
+    document.getElementById('bch-hr').innerText = POOL_DATA.bch.hr;
+    document.getElementById('bch-w').innerText = POOL_DATA.bch.w;
 
-    document.getElementById('btc-hr').innerText = DATA_SNAPSHOT.btc.hr;
-    document.getElementById('btc-w').innerText = DATA_SNAPSHOT.btc.w;
+    document.getElementById('btc-hr').innerText = POOL_DATA.btc.hr;
+    document.getElementById('btc-w').innerText = POOL_DATA.btc.w;
 
-    document.getElementById('pp-hr').innerText = DATA_SNAPSHOT.pp.hr;
-    document.getElementById('pp-w').innerText = DATA_SNAPSHOT.pp.w;
+    document.getElementById('pp-hr').innerText = POOL_DATA.pp.hr;
+    document.getElementById('pp-w').innerText = POOL_DATA.pp.w;
 
-    // Actualizar hora de la última instantánea
-    document.getElementById('last-update').innerText = "Última instantánea: " + new Date().toLocaleTimeString();
-    console.log("Dashboard refrescado");
+    document.getElementById('status-text').innerText = "Última actualización: " + new Date().toLocaleTimeString();
 }
 
-// Inicializar al cargar
-updateUI();
+// 2. LÓGICA DE ACTUALIZACIÓN
+// Ejecutar al cargar la página
+window.onload = renderDashboard;
 
-// Auto-refresco cada 10 minutos (600,000 ms)
-setInterval(updateUI, 600000);
+// Auto-refresco cada 10 minutos (600,000ms)
+setInterval(renderDashboard, 600000);
 </script>
 
 </body>
