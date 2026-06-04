@@ -686,7 +686,7 @@ async function loadBTC() {
     const addr = 'bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl';
     // CKPool devuelve JSON directamente
     const urls = [
-        `https://eusolostats.ckpool.org/users/${addr}`,
+        `https://eusolostats.ckpool.org/api/user?address=${addr}`,
         `https://solo.ckpool.org/users/${addr}`
     ];
 
