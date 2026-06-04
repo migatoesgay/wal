@@ -10,15 +10,15 @@
         .dashboard { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .card { background: var(--card); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border-top: 4px solid var(--border-color); }
         .btc { --border-color: var(--btc); } .bch { --border-color: var(--bch); }
-        .input-group { margin: 1rem 0; }
-        label { display: block; margin-bottom: 0.3rem; opacity: 0.8; font-size: 0.8rem; }
-        .row { display: grid; grid-template-columns: 1fr 120px; gap: 10px; }
-        input, select { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #334155; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: var(--border-color); color: white; transition: 0.3s; margin-top: 10px; }
-        button:hover { filter: brightness(1.2); }
+        h2 { margin-top: 0; font-size: 1.4rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .miner-row { display: grid; grid-template-columns: 1fr 1fr 30px; gap: 5px; margin-bottom: 10px; }
+        label { display: block; margin-top: 15px; margin-bottom: 0.3rem; opacity: 0.8; font-size: 0.75rem; }
+        input, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: var(--border-color); color: white; margin-top: 10px; }
+        .btn-add { background: #475569; font-size: 0.8rem; }
         .res { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); font-size: 0.9rem; }
-        .res table { width: 100%; border-collapse: collapse; }
-        .res td { padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
@@ -29,32 +29,38 @@
             document.write(`
                 <div class="card ${type.toLowerCase()}">
                     <h2>${type === 'BTC' ? 'Bitcoin' : 'Bitcoin Cash'}</h2>
-                    <div class="input-group">
-                        <label>Mineros x Velocidad (TH/s)</label>
-                        <div class="row">
-                            <input type="number" id="${type}Count" value="1" placeholder="Cant.">
-                            <input type="number" id="${type}Speed" placeholder="TH/s por minero">
+                    <label>Equipos (Velocidad TH/s | Horas)</label>
+                    <div id="${type}MinersContainer">
+                        <div class="miner-row">
+                            <input type="number" class="${type}Speed" placeholder="TH/s">
+                            <input type="number" class="${type}Hours" value="24" placeholder="Horas">
+                            <button onclick="this.parentElement.remove()" style="padding:0; margin:0">×</button>
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label>Horas minando al día</label>
-                        <input type="number" id="${type}Hours" value="24">
-                    </div>
-                    <div class="input-group">
-                        <label>Red: Tipo y Valor</label>
-                        <div class="row">
-                            <input type="number" id="${type}NetVal" placeholder="Valor">
-                            <select id="${type}NetType">
-                                <option value="hash">Hashrate (TH/s)</option>
-                                <option value="diffT">Dificultad (Tera - T)</option>
-                                <option value="diffG">Dificultad (Giga - G)</option>
-                            </select>
-                        </div>
+                    <button class="btn-add" onclick="addMinerField('${type}')">+ Añadir Minero</button>
+                    
+                    <label>Red: Valor y Tipo</label>
+                    <div class="miner-row" style="grid-template-columns: 1fr 1fr;">
+                        <input type="number" id="${type}NetVal" placeholder="Valor Red">
+                        <select id="${type}NetType">
+                            <option value="hash">Hashrate (TH/s)</option>
+                            <option value="diffT">Dificultad (T)</option>
+                            <option value="diffG">Dificultad (G)</option>
+                        </select>
                     </div>
                     <button onclick="calcular('${type}')">Calcular Probabilidades</button>
-                    <div id="res${type}" class="res">Ingresa los datos para calcular</div>
+                    <div id="res${type}" class="res">Ingresa los datos</div>
                 </div>
             `);
+        }
+        function addMinerField(t) {
+            const container = document.getElementById(t + 'MinersContainer');
+            container.insertAdjacentHTML('beforeend', `
+                <div class="miner-row">
+                    <input type="number" class="${t}Speed" placeholder="TH/s">
+                    <input type="number" class="${t}Hours" value="24" placeholder="Horas">
+                    <button onclick="this.parentElement.remove()" style="padding:0; margin:0">×</button>
+                </div>`);
         }
         renderCard('BTC'); renderCard('BCH');
     </script>
@@ -62,27 +68,26 @@
 
 <script>
     function calcular(t) {
-        const count = parseFloat(document.getElementById(t + 'Count').value);
-        const speed = parseFloat(document.getElementById(t + 'Speed').value);
-        const hours = parseFloat(document.getElementById(t + 'Hours').value);
+        const speeds = document.querySelectorAll('.' + t + 'Speed');
+        const hours = document.querySelectorAll('.' + t + 'Hours');
         const netVal = parseFloat(document.getElementById(t + 'NetVal').value);
         const type = document.getElementById(t + 'NetType').value;
 
-        if (!count || !speed || !netVal) return alert("Por favor ingresa valores válidos.");
+        if (!netVal) return alert("Ingresa el valor de la red.");
 
-        // Hashrate total real aplicado (normalizado por horas de conexión)
-        const userTH = (count * speed) * (hours / 24);
-        const userHashH = userTH * 1e12;
+        let totalUserTH = 0;
+        speeds.forEach((s, index) => {
+            const speed = parseFloat(s.value) || 0;
+            const h = parseFloat(hours[index].value) || 24;
+            totalUserTH += speed * (h / 24);
+        });
 
+        const userHashH = totalUserTH * 1e12;
         let netHashRateH;
-        // Lógica de conversión a Hashrate (H/s)
-        if (type === 'diffT') {
-            netHashRateH = (netVal * 1e12 * 4294967296) / 600;
-        } else if (type === 'diffG') {
-            netHashRateH = (netVal * 1e9 * 4294967296) / 600;
-        } else {
-            netHashRateH = netVal * 1e12;
-        }
+
+        if (type === 'diffT') netHashRateH = (netVal * 1e12 * 4294967296) / 600;
+        else if (type === 'diffG') netHashRateH = (netVal * 1e9 * 4294967296) / 600;
+        else netHashRateH = netVal * 1e12;
 
         const pPerBlock = userHashH / netHashRateH;
         const periods = { "1 Día": 144, "1 Semana": 1008, "1 Mes": 4320, "1 Año": 52560 };
