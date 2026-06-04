@@ -2,11 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Calculadora de Minería Solo (BTC/BCH)</title>
+    <title>Calculadora de Minería Solo</title>
     <style>
         body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-        .container { display: flex; gap: 20px; }
-        .calc-box { flex: 1; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; }
+        .container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .calc-box { flex: 1; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; min-width: 300px; }
         .input-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.3rem; font-size: 0.9rem; }
         input { width: 100%; padding: 0.5rem; box-sizing: border-box; }
@@ -31,11 +31,7 @@
             </div>
             <div class="input-group">
                 <label>Hashrate Red BTC (TH/s):</label>
-                <input type="number" id="btcNet">
-            </div>
-            <div class="input-group">
-                <label>Días:</label>
-                <input type="number" id="btcDays" value="1">
+                <input type="number" id="btcNet" readonly>
             </div>
             <button class="btn-btc" onclick="calcular('BTC')">Calcular BTC</button>
             <div id="resBTC" class="resultado"></div>
@@ -49,11 +45,7 @@
             </div>
             <div class="input-group">
                 <label>Hashrate Red BCH (TH/s):</label>
-                <input type="number" id="bchNet">
-            </div>
-            <div class="input-group">
-                <label>Días:</label>
-                <input type="number" id="bchDays" value="1">
+                <input type="number" id="bchNet" readonly>
             </div>
             <button class="btn-bch" onclick="calcular('BCH')">Calcular BCH</button>
             <div id="resBCH" class="resultado"></div>
@@ -63,56 +55,47 @@
     <script>
         async function fetchNetworkHashrates() {
             const statusEl = document.getElementById('status');
+            
             try {
-                // BTC (Blockchain.info)
-                const resBtc = await fetch('https://api.blockchain.info/stats?format=json');
-                const dataBtc = await resBtc.json();
-                document.getElementById('btcNet').value = (dataBtc.hash_rate / 1000).toFixed(2);
+                // 1. Cargar BTC
+                const btcRes = await fetch('https://blockchain.info/q/hashrate?cors=true');
+                const btcHashGH = await btcRes.text();
+                document.getElementById('btcNet').value = (parseFloat(btcHashGH) / 1000).toFixed(2);
 
-                // BCH (Blockchair API)
-                const resBch = await fetch('https://api.blockchair.com/bitcoin-cash/stats');
-                const dataBch = await resBch.json();
-                const rawHashrate = parseFloat(dataBch.data.hash_rate_24h);
-                const bchHashTH = rawHashrate / 1e12;
-                document.getElementById('bchNet').value = bchHashTH.toFixed(2);
+                // 2. Cargar BCH
+                const bchRes = await fetch('https://api.blockchair.com/bitcoin-cash/stats');
+                const bchData = await bchRes.json();
+                if (bchData && bchData.data) {
+                    const bchHashTH = parseFloat(bchData.data.hash_rate_24h) / 1e12;
+                    document.getElementById('bchNet').value = bchHashTH.toFixed(2);
+                }
 
                 statusEl.innerText = "Datos actualizados correctamente.";
             } catch (error) {
-                statusEl.innerText = "Error al conectar con las APIs.";
+                statusEl.innerText = "Error al cargar datos. Refresca la página.";
                 console.error("Error:", error);
             }
         }
 
-        fetchNetworkHashrates();
-
         function calcular(tipo) {
-            let userHash, netHash, days, resId;
-
-            if (tipo === 'BTC') {
-                userHash = parseFloat(document.getElementById('btcHash').value) * 1e12;
-                netHash = parseFloat(document.getElementById('btcNet').value) * 1e12;
-                days = parseFloat(document.getElementById('btcDays').value);
-                resId = 'resBTC';
-            } else {
-                userHash = parseFloat(document.getElementById('bchHash').value) * 1e12;
-                netHash = parseFloat(document.getElementById('bchNet').value) * 1e12;
-                days = parseFloat(document.getElementById('bchDays').value);
-                resId = 'resBCH';
-            }
-
-            if (isNaN(userHash) || isNaN(netHash) || userHash <= 0) {
-                document.getElementById(resId).innerHTML = "Por favor ingresa valores válidos.";
+            const userHash = parseFloat(document.getElementById(tipo.toLowerCase() + 'Hash').value);
+            const netHash = parseFloat(document.getElementById(tipo.toLowerCase() + 'Net').value);
+            
+            if (isNaN(userHash) || userHash <= 0 || isNaN(netHash)) {
+                document.getElementById('res' + tipo).innerHTML = "Ingresa un hashrate válido.";
                 return;
             }
 
-            const totalSeconds = days * 24 * 3600;
-            const blocks = totalSeconds / 600;
+            // Probabilidad en 24h (144 bloques aprox)
             const probPerBlock = userHash / netHash;
-            const prob = 1 - Math.pow((1 - probPerBlock), blocks);
+            const prob = 1 - Math.pow((1 - probPerBlock), 144);
             
-            document.getElementById(resId).innerHTML = 
-                `Probabilidad: <strong>${(prob * 100).toFixed(6)}%</strong>`;
+            document.getElementById('res' + tipo).innerHTML = 
+                `Probabilidad (24h): <strong>${(prob * 100).toFixed(6)}%</strong>`;
         }
+
+        // Iniciar
+        fetchNetworkHashrates();
     </script>
 </body>
 </html>
