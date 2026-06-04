@@ -2,65 +2,75 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Multi-Crypto Mining Dashboard (Snapshot Mode)</title>
+    <title>Multi-Crypto Mining Dashboard - Snapshot Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100">
+<body class="bg-slate-950 text-slate-100 p-8">
 
-<nav class="border-b border-slate-800 p-4">
-    <h1 class="text-lg font-bold">SoloMining Hub <span class="text-amber-400">Snapshot</span></h1>
-    <p class="text-xs text-slate-400" id="live-clock">Cargando...</p>
-</nav>
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Dashboard Minería (Snapshot 10min)</h1>
+    <p class="text-slate-400 mb-4" id="last-global-update">Cargando...</p>
 
-<main class="max-w-7xl mx-auto p-6">
-    <div id="panel-bch" class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-        <h2 class="text-xl font-bold mb-4">Bitcoin Cash (BCH)</h2>
-        <p class="text-sm text-slate-400 mb-6">Última actualización: <span id="bch-update"></span></p>
-        
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-slate-950 p-4 rounded-xl">
-                <p class="text-xs text-slate-500">Hashrate 1m</p>
-                <p class="text-2xl font-mono text-amber-400" id="bch-hr1m">—</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h2 class="text-xl font-bold mb-2">BCH (SoloMining)</h2>
+            <div id="bch-content" class="space-y-2">
+                <p>Hashrate: <span id="bch-hr" class="font-mono text-amber-400">-</span></p>
+                <p>Workers: <span id="bch-w" class="font-mono text-amber-400">-</span></p>
             </div>
-            <div class="bg-slate-950 p-4 rounded-xl">
-                <p class="text-xs text-slate-500">Workers</p>
-                <p class="text-2xl font-mono text-orange-400" id="bch-workers">—</p>
+        </div>
+
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h2 class="text-xl font-bold mb-2">BTC (CKPool)</h2>
+            <div id="btc-content" class="space-y-2">
+                <p>Hashrate: <span id="btc-hr" class="font-mono text-blue-400">-</span></p>
+                <p>Workers: <span id="btc-w" class="font-mono text-blue-400">-</span></p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h2 class="text-xl font-bold mb-2">Public-Pool</h2>
+            <div id="pp-content" class="space-y-2">
+                <p>Hashrate: <span id="pp-hr" class="font-mono text-emerald-400">-</span></p>
+                <p>Workers: <span id="pp-w" class="font-mono text-emerald-400">-</span></p>
             </div>
         </div>
     </div>
-</main>
+</div>
 
 <script>
-// 1. INSTANTÁNEA DE DATOS (Modifica esto manualmente para actualizar)
-const DATA_SNAPSHOT = {
-    bch: {
-        hashrate1m: "1.25T",
-        workers: 1,
-        lastupdate: "04/06/2026 12:28",
-        chartData: [0.5, 0.8, 1.0, 1.1, 1.25]
-    }
+// 1. DATA SNAPSHOT: Modifica estos valores para actualizar los datos
+const POOL_SNAPSHOTS = {
+    bch: { hr: "1.25 TH/s", w: "3" },
+    btc: { hr: "500 GH/s", w: "1" },
+    pp:  { hr: "450 GH/s", w: "1" }
 };
 
-// 2. FUNCIÓN DE RENDERIZADO SIN ASINCRONÍA
-function initDashboard() {
-    // Reloj
-    document.getElementById('live-clock').innerText = new Date().toLocaleString('es-ES');
-    
-    // Cargar datos BCH
-    const d = DATA_SNAPSHOT.bch;
-    document.getElementById('bch-update').innerText = d.lastupdate;
-    document.getElementById('bch-hr1m').innerText = d.hashrate1m;
-    document.getElementById('bch-workers').innerText = d.workers;
+// 2. FUNCIÓN DE ACTUALIZACIÓN
+function updateDashboard() {
+    const now = new Date().toLocaleTimeString();
+    document.getElementById('last-global-update').innerText = "Última instantánea: " + now;
 
-    // Inicializar Gráfico con datos estáticos
-    const ctx = document.createElement('canvas'); // Simplificado para el ejemplo
-    // Aquí iría tu lógica de Chart.js previa usando d.chartData
-    console.log("Dashboard cargado con datos de snapshot.");
+    // Actualizar BCH
+    document.getElementById('bch-hr').innerText = POOL_SNAPSHOTS.bch.hr;
+    document.getElementById('bch-w').innerText = POOL_SNAPSHOTS.bch.w;
+
+    // Actualizar BTC
+    document.getElementById('btc-hr').innerText = POOL_SNAPSHOTS.btc.hr;
+    document.getElementById('btc-w').innerText = POOL_SNAPSHOTS.btc.w;
+
+    // Actualizar Public Pool
+    document.getElementById('pp-hr').innerText = POOL_SNAPSHOTS.pp.hr;
+    document.getElementById('pp-w').innerText = POOL_SNAPSHOTS.pp.w;
+    
+    console.log("Interfaz refrescada a las " + now);
 }
 
-// 3. EJECUCIÓN INICIAL AL CARGAR LA PÁGINA
-window.onload = initDashboard;
+// 3. INTERVALO: 10 minutos (10 * 60 * 1000 ms = 600,000)
+setInterval(updateDashboard, 600000);
+
+// Ejecución inicial
+updateDashboard();
 </script>
 </body>
 </html>
