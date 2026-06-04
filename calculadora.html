@@ -13,9 +13,9 @@
         .bch { --border-color: var(--bch); }
         h2 { margin-top: 0; font-size: 1.5rem; }
         .input-group { margin: 1.2rem 0; }
-        label { display: block; margin-bottom: 0.5rem; opacity: 0.8; font-size: 0.85rem; }
-        input, select { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #334155; color: white; box-sizing: border-box; }
+        label { display: block; margin-bottom: 0.5rem; opacity: 0.8; font-size: 0.8rem; }
         .row { display: grid; grid-template-columns: 1fr 100px; gap: 10px; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #334155; color: white; box-sizing: border-box; }
         button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: var(--border-color); color: white; transition: 0.3s; }
         button:hover { filter: brightness(1.2); }
         .res { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); text-align: center; }
@@ -38,11 +38,18 @@
             </div>
         </div>
         <div class="input-group">
-            <label>Hashrate Red (TH/s)</label>
-            <input type="number" id="btcNet" placeholder="Cargando...">
+            <label>Hashrate Red</label>
+            <div class="row">
+                <input type="number" id="btcNetVal" placeholder="Cargando...">
+                <select id="btcNetUnit">
+                    <option value="0.001">GH/s</option>
+                    <option value="1" selected>TH/s</option>
+                    <option value="1000">PH/s</option>
+                </select>
+            </div>
         </div>
         <button onclick="calcular('BTC')">Calcular Probabilidad</button>
-        <div id="resBTC" class="res">Configura tus valores</div>
+        <div id="resBTC" class="res">Ingresa los datos</div>
     </div>
 
     <div class="card bch">
@@ -59,43 +66,46 @@
             </div>
         </div>
         <div class="input-group">
-            <label>Hashrate Red (TH/s)</label>
-            <input type="number" id="bchNet" placeholder="Cargando...">
+            <label>Hashrate Red</label>
+            <div class="row">
+                <input type="number" id="bchNetVal" placeholder="Ingresa valor manual">
+                <select id="bchNetUnit">
+                    <option value="0.001">GH/s</option>
+                    <option value="1" selected>TH/s</option>
+                    <option value="1000">PH/s</option>
+                </select>
+            </div>
         </div>
         <button onclick="calcular('BCH')">Calcular Probabilidad</button>
-        <div id="resBCH" class="res">Configura tus valores</div>
+        <div id="resBCH" class="res">Ingresa los datos</div>
     </div>
 </div>
 
 <script>
+    // Intentamos cargar el dato de BTC automáticamente al iniciar
     async function init() {
         try {
-            // Carga automática BTC
             const btcRes = await fetch('https://blockchain.info/q/hashrate?cors=true');
-            document.getElementById('btcNet').value = (await btcRes.text() / 1000).toFixed(2);
-
-            // Carga automática BCH con Proxy CORS
-            const bchRes = await fetch('https://corsproxy.io/?https://api.blockchair.com/bitcoin-cash/stats');
-            const bchData = await bchRes.json();
-            document.getElementById('bchNet').value = (bchData.data.hash_rate_24h / 1e12).toFixed(2);
+            const data = await btcRes.text();
+            document.getElementById('btcNetVal').value = (data / 1000).toFixed(2);
         } catch (e) { 
-            console.log("No se pudieron cargar los datos de red, usa el modo manual."); 
+            console.log("Carga automática no disponible, entrada manual activa."); 
         }
     }
 
     function calcular(t) {
-        const val = parseFloat(document.getElementById(t.toLowerCase() + 'HashVal').value);
-        const unit = parseFloat(document.getElementById(t.toLowerCase() + 'HashUnit').value);
-        const userHashTH = val * unit;
-        const netHashTH = parseFloat(document.getElementById(t.toLowerCase() + 'Net').value);
+        // Obtenemos los valores y los normalizamos a TH/s
+        const user = parseFloat(document.getElementById(t.toLowerCase() + 'HashVal').value) * parseFloat(document.getElementById(t.toLowerCase() + 'HashUnit').value);
+        const net = parseFloat(document.getElementById(t.toLowerCase() + 'NetVal').value) * parseFloat(document.getElementById(t.toLowerCase() + 'NetUnit').value);
 
-        if (!userHashTH || !netHashTH) return alert("Por favor ingresa valores válidos");
+        if (!user || !net) return alert("Por favor ingresa valores válidos en ambos campos.");
         
-        // Cálculo de probabilidad en 24 horas (144 bloques)
-        const prob = (1 - Math.pow((1 - (userHashTH / netHashTH)), 144)) * 100;
+        // Cálculo de probabilidad en 24 horas (basado en 144 bloques diarios)
+        // Fórmula: 1 - (1 - (hashrate_usuario / hashrate_red))^bloques_diarios
+        const prob = (1 - Math.pow((1 - (user / net)), 144)) * 100;
         
         document.getElementById('res' + t).innerHTML = `Probabilidad (24h):<br>
-            <strong style="font-size: 1.2rem">${prob.toFixed(6)}%</strong>`;
+            <strong style="font-size: 1.3rem">${prob.toFixed(6)}%</strong>`;
     }
 
     init();
