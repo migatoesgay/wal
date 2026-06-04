@@ -34,6 +34,7 @@
                     <option value="0.001">GH/s</option>
                     <option value="1" selected>TH/s</option>
                     <option value="1000">PH/s</option>
+                    <option value="1000000">EH/s</option>
                 </select>
             </div>
         </div>
@@ -45,6 +46,7 @@
                     <option value="0.001">GH/s</option>
                     <option value="1" selected>TH/s</option>
                     <option value="1000">PH/s</option>
+                    <option value="1000000">EH/s</option>
                 </select>
             </div>
         </div>
@@ -62,6 +64,7 @@
                     <option value="0.001">GH/s</option>
                     <option value="1" selected>TH/s</option>
                     <option value="1000">PH/s</option>
+                    <option value="1000000">EH/s</option>
                 </select>
             </div>
         </div>
@@ -73,6 +76,7 @@
                     <option value="0.001">GH/s</option>
                     <option value="1" selected>TH/s</option>
                     <option value="1000">PH/s</option>
+                    <option value="1000000">EH/s</option>
                 </select>
             </div>
         </div>
@@ -82,26 +86,25 @@
 </div>
 
 <script>
-    // Intentamos cargar el dato de BTC automáticamente al iniciar
     async function init() {
         try {
+            // Carga automática solo para BTC
             const btcRes = await fetch('https://blockchain.info/q/hashrate?cors=true');
             const data = await btcRes.text();
             document.getElementById('btcNetVal').value = (data / 1000).toFixed(2);
         } catch (e) { 
-            console.log("Carga automática no disponible, entrada manual activa."); 
+            console.log("Carga automática BTC no disponible."); 
         }
     }
 
     function calcular(t) {
-        // Obtenemos los valores y los normalizamos a TH/s
+        // Conversión a una unidad base común (TH/s) para realizar el cálculo
         const user = parseFloat(document.getElementById(t.toLowerCase() + 'HashVal').value) * parseFloat(document.getElementById(t.toLowerCase() + 'HashUnit').value);
         const net = parseFloat(document.getElementById(t.toLowerCase() + 'NetVal').value) * parseFloat(document.getElementById(t.toLowerCase() + 'NetUnit').value);
 
         if (!user || !net) return alert("Por favor ingresa valores válidos en ambos campos.");
         
         // Cálculo de probabilidad en 24 horas (basado en 144 bloques diarios)
-        // Fórmula: 1 - (1 - (hashrate_usuario / hashrate_red))^bloques_diarios
         const prob = (1 - Math.pow((1 - (user / net)), 144)) * 100;
         
         document.getElementById('res' + t).innerHTML = `Probabilidad (24h):<br>
