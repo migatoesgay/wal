@@ -3,114 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Crypto Mining Dashboard - Snapshot Mode</title>
+    <title>Dashboard Minería - Snapshot Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
-        body { font-family: 'Syne', sans-serif; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-8">
+<body class="bg-slate-950 text-slate-100 p-8">
 
-<div class="max-w-4xl mx-auto space-y-6">
-    <h1 class="text-3xl font-bold">Dashboard Minería (Snapshot 10min)</h1>
-    <p class="text-amber-500 font-mono" id="last-update">Cargando datos...</p>
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Panel de Minería (Snapshot)</h1>
+    <p class="text-slate-400 mb-6" id="last-update">Actualizado: Cargando...</p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Panel BCH -->
-        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 fade-in">
-            <h2 class="text-lg font-bold text-amber-400 mb-4">BCH (SoloMining.io)</h2>
-            <div class="space-y-2 text-sm">
-                <p>Hashrate: <span id="bch-hr" class="mono font-bold text-white">---</span></p>
-                <p>Workers: <span id="bch-w" class="mono font-bold text-white">---</span></p>
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h2 class="text-xl font-bold text-amber-400 mb-2">BCH (SoloMining)</h2>
+            <div class="space-y-2">
+                <p>Hashrate: <span id="bch-hr" class="font-mono text-white">1.25 TH/s</span></p>
+                <p>Workers: <span id="bch-w" class="font-mono text-white">3</span></p>
             </div>
         </div>
 
-        <!-- Panel BTC (CKPool) -->
-        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 fade-in">
-            <h2 class="text-lg font-bold text-orange-400 mb-4">BTC (Solo CKPool)</h2>
-            <div class="space-y-2 text-sm">
-                <p>Hashrate: <span id="btc-hr" class="mono font-bold text-white">---</span></p>
-                <p>Workers: <span id="btc-w" class="mono font-bold text-white">---</span></p>
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h2 class="text-xl font-bold text-orange-400 mb-2">BTC (CKPool)</h2>
+            <div class="space-y-2">
+                <p>Hashrate: <span id="btc-hr" class="font-mono text-white">500 GH/s</span></p>
+                <p>Workers: <span id="btc-w" class="font-mono text-white">2</span></p>
             </div>
         </div>
 
-        <!-- Panel Public-Pool -->
-        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 fade-in">
-            <h2 class="text-lg font-bold text-cyan-400 mb-4">Public-Pool</h2>
-            <div class="space-y-2 text-sm">
-                <p>Hashrate: <span id="pp-hr" class="mono font-bold text-white">---</span></p>
-                <p>Workers: <span id="pp-w" class="mono font-bold text-white">---</span></p>
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+            <h2 class="text-xl font-bold text-emerald-400 mb-2">Public-Pool</h2>
+            <div class="space-y-2">
+                <p>Hashrate: <span id="pp-hr" class="font-mono text-white">450 GH/s</span></p>
+                <p>Workers: <span id="pp-w" class="font-mono text-white">1</span></p>
             </div>
         </div>
     </div>
 </div>
 
-
-
 <script>
-// Función que consulta a tu proxy y actualiza la web
-async function actualizarDashboard() {
-    try {
-        // Llamada a tu servidor intermedio
-        const response = await fetch('http://localhost:3000/datos-mineria');
-        const data = await response.json();
-
-        // Inyectamos los datos en los elementos HTML correspondientes
-        document.getElementById('bch-hr').innerText = data.hashrate;
-        document.getElementById('bch-w').innerText = data.workers;
-        document.getElementById('last-update').innerText = "Última actualización: " + data.timestamp;
-        
-        console.log("Datos actualizados correctamente.");
-    } catch (error) {
-        console.error("No se pudo conectar con el servidor de datos:", error);
-    }
-}
-
-// Actualizar al cargar y luego cada 10 minutos
-window.onload = actualizarDashboard;
-setInterval(actualizarDashboard, 600000); 
-</script>
-
-
-<script>
-
-    
-// DATOS DEFINIDOS (puedes cambiarlos aquí manualmente)
-const SNAPSHOT_DATA = {
+// OBJETO DE DATOS: Actualiza estos valores cuando cambies tu configuración en los pools
+const DATA_SNAPSHOT = {
     bch: { hr: "1.25 TH/s", w: "3" },
-    // AQUÍ ACTUALIZAMOS A 2 TRABAJADORES
-    btc: { hr: "500 GH/s", w: "2" }, 
+    btc: { hr: "500 GH/s", w: "2" }, // Corregido a 2 workers
     pp:  { hr: "450 GH/s", w: "1" }
 };
 
-function refreshDashboard() {
-    // Inyectar datos en el DOM
-    document.getElementById('bch-hr').innerText = SNAPSHOT_DATA.bch.hr;
-    document.getElementById('bch-w').innerText = SNAPSHOT_DATA.bch.w;
-    
-    document.getElementById('btc-hr').innerText = SNAPSHOT_DATA.btc.hr;
-    document.getElementById('btc-w').innerText = SNAPSHOT_DATA.btc.w;
-    
-    document.getElementById('pp-hr').innerText = SNAPSHOT_DATA.pp.hr;
-    document.getElementById('pp-w').innerText = SNAPSHOT_DATA.pp.w;
+function updateUI() {
+    // Inyectar datos en los elementos
+    document.getElementById('bch-hr').innerText = DATA_SNAPSHOT.bch.hr;
+    document.getElementById('bch-w').innerText = DATA_SNAPSHOT.bch.w;
 
-    // Actualizar timestamp
-    const now = new Date().toLocaleTimeString();
-    document.getElementById('last-update').innerText = "Última instantánea: " + now;
-    
-    console.log("Snapshot inyectado a las " + now);
+    document.getElementById('btc-hr').innerText = DATA_SNAPSHOT.btc.hr;
+    document.getElementById('btc-w').innerText = DATA_SNAPSHOT.btc.w;
+
+    document.getElementById('pp-hr').innerText = DATA_SNAPSHOT.pp.hr;
+    document.getElementById('pp-w').innerText = DATA_SNAPSHOT.pp.w;
+
+    // Actualizar hora de la última instantánea
+    document.getElementById('last-update').innerText = "Última instantánea: " + new Date().toLocaleTimeString();
+    console.log("Dashboard refrescado");
 }
 
-// Ejecutar cada 10 minutos (600,000 ms)
-setInterval(refreshDashboard, 600000);
+// Inicializar al cargar
+updateUI();
 
-// Carga inicial
-refreshDashboard();
+// Auto-refresco cada 10 minutos (600,000 ms)
+setInterval(updateUI, 600000);
 </script>
+
 </body>
 </html>
