@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Minería BTC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased p-6">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-orange-400">Panel CKPool</h1>
+                <p class="text-xs text-slate-400" id="last-update">Cargando datos...</p>
+            </div>
+            <i class="fa-solid fa-bitcoin-sign text-3xl text-orange-500/50"></i>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="stats-grid">
+            </div>
+    </div>
+
+    <script>
+        fetch('stats.json?t=' + new Date().getTime())
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('last-update').innerText = "Última sincronización: " + d.last_updated;
+                
+                const stats = [
+                    { label: "Hashrate (5m)", val: d.hashrate5m },
+                    { label: "Hashrate (1h)", val: d.hashrate1h },
+                    { label: "Hashrate (1d)", val: d.hashrate1d },
+                    { label: "Hashrate (7d)", val: d.hashrate7d },
+                    { label: "Workers", val: Object.keys(d.worker || {}).length },
+                    { label: "Total Shares", val: d.shares },
+                    { label: "Best Share", val: d.bestshare },
+                    { label: "Best Ever", val: d.bestever }
+                ];
+
+                const grid = document.getElementById('stats-grid');
+                grid.innerHTML = stats.map(s => `
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-orange-500/50 transition">
+                        <p class="text-[10px] uppercase tracking-wider text-slate-400 mb-1">${s.label}</p>
+                        <p class="text-md font-bold text-slate-100">${s.val || '0'}</p>
+                    </div>
+                `).join('');
+            })
+            .catch(err => {
+                console.error("Error:", err);
+            });
+    </script>
+</body>
+</html>
