@@ -1,43 +1,77 @@
-<div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden mt-6">
-    <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800">
-        <h3 class="text-sm font-bold text-slate-300">Desglose de Workers</h3>
-    </div>
-    <div class="overflow-x-auto text-xs">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
-                    <th class="px-5 py-3">Nombre</th>
-                    <th class="px-5 py-3">Hashrate (5m)</th>
-                    <th class="px-5 py-3">Hashrate (1d)</th>
-                    <th class="px-5 py-3">Shares</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-workers" class="divide-y divide-slate-800/50 text-slate-300">
-                </tbody>
-        </table>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Minería BTC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased p-6">
 
-<script>
-    fetch('stats.json?t=' + new Date().getTime())
-        .then(r => r.json())
-        .then(d => {
-            // ... (tu lógica anterior para los totales sigue igual) ...
-            
-            const tabla = document.getElementById('tabla-workers');
-            tabla.innerHTML = ""; // Limpiamos la tabla
+    <div class="max-w-5xl mx-auto space-y-6">
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-orange-400">Dashboard CKPool</h1>
+                <p class="text-xs text-slate-400" id="last-update">Sincronizando...</p>
+            </div>
+            <i class="fa-solid fa-bitcoin-sign text-3xl text-orange-500/50"></i>
+        </div>
 
-            if (d.worker) {
-                Object.entries(d.worker).forEach(([nombre, w]) => {
-                    tabla.innerHTML += `
-                        <tr class="hover:bg-slate-850/40">
-                            <td class="px-5 py-3 font-mono text-orange-400 font-bold">${nombre}</td>
-                            <td class="px-5 py-3">${(w.hashrate5m || 0).toFixed(2)}</td>
-                            <td class="px-5 py-3">${(w.hashrate1d || 0).toFixed(2)}</td>
-                            <td class="px-5 py-3">${w.shares || 0}</td>
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden">
+            <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800">
+                <h3 class="text-sm font-bold text-slate-300">Detalle por Worker</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-950/80 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                            <th class="px-5 py-3">Nombre</th>
+                            <th class="px-5 py-3">Hashrate (5m)</th>
+                            <th class="px-5 py-3">Hashrate (1d)</th>
+                            <th class="px-5 py-3">Shares</th>
                         </tr>
-                    `;
-                });
-            }
-        });
-</script>
+                    </thead>
+                    <tbody id="tabla-workers" class="divide-y divide-slate-800/50 text-slate-300">
+                        <tr><td colspan="4" class="px-5 py-4 text-center">Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        fetch('stats.json?t=' + new Date().getTime())
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('last-update').innerText = "Última sincronización: " + (d.last_updated || 'N/A');
+                
+                const tabla = document.getElementById('tabla-workers');
+                tabla.innerHTML = ""; 
+
+                if (d.worker) {
+                    Object.entries(d.worker).forEach(([nombre, w]) => {
+                        // Formateo seguro para evitar errores con strings o números
+                        const h5m = w.hashrate5m || 0;
+                        const h1d = w.hashrate1d || 0;
+                        
+                        tabla.innerHTML += `
+                            <tr class="hover:bg-slate-850/40 transition">
+                                <td class="px-5 py-3 font-mono font-bold text-orange-400">${nombre}</td>
+                                <td class="px-5 py-3">${h5m}</td>
+                                <td class="px-5 py-3">${h1d}</td>
+                                <td class="px-5 py-3">${w.shares || 0}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tabla.innerHTML = `<tr><td colspan="4" class="px-5 py-4 text-center text-slate-500">No hay workers activos.</td></tr>`;
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                document.getElementById('tabla-workers').innerHTML = `<tr><td colspan="4" class="px-5 py-4 text-center text-red-500">Error de conexión.</td></tr>`;
+            });
+    </script>
+</body>
+</html>
