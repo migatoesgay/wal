@@ -2,35 +2,45 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Estado de Minería</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Minería</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        #stats { border: 1px solid #ccc; padding: 15px; border-radius: 8px; max-width: 300px; }
+    </style>
 </head>
 <body>
     <h1>Mis Estadísticas</h1>
-    <div id="stats">Cargando...</div>
+    <div id="stats">Cargando datos...</div>
 
     <script>
-        // Añadimos un timestamp (?t=...) para que el navegador no use una versión vieja
+        // Usamos el timestamp para evitar la caché del navegador
         fetch('stats.json?t=' + new Date().getTime())
             .then(response => {
                 if (!response.ok) throw new Error("No se pudo cargar el archivo");
                 return response.json();
             })
             .then(data => {
-                // Verificamos si existe 'worker' y tiene datos
                 if (data.worker && data.worker.length > 0) {
                     const w = data.worker[0];
+                    
+                    // Lógica para convertir MH a TH
+                    // Si w.hashrate1d es "84M", quitamos la 'M', dividimos por 1,000,000
+                    const rawHash = parseFloat(w.hashrate1d.replace('M', ''));
+                    const hashrateTH = (rawHash / 1000000).toFixed(6); 
+                    
                     document.getElementById('stats').innerHTML = `
-                        <p><strong>Actualización:</strong> ${data.last_updated || 'N/A'}</p>
-                        <p><strong>Hashrate (1 día):</strong> ${w.hashrate1d}</p>
+                        <p><strong>Última actualización:</strong> ${data.last_updated || 'N/A'}</p>
+                        <p><strong>Hashrate (1 día):</strong> ${hashrateTH} TH/s</p>
                         <p><strong>Total Shares:</strong> ${w.shares}</p>
                         <p><strong>Best Share:</strong> ${Math.round(w.bestshare)}</p>
                     `;
                 } else {
-                    document.getElementById('stats').innerHTML = "JSON cargado, pero no contiene datos de worker.";
+                    document.getElementById('stats').innerText = "No se encontraron datos de worker.";
                 }
             })
             .catch(err => {
-                document.getElementById('stats').innerText = "Error: " + err.message;
+                document.getElementById('stats').innerText = "Error al cargar: " + err.message;
             });
     </script>
 </body>
