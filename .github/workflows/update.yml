@@ -28,7 +28,12 @@ jobs:
         run: |
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
+          # Esto asegura que detecte el cambio en stats.json
           git add stats.json
-          # El '|| exit 0' evita error si no hay cambios que guardar
-          git commit -m "Actualización automática de stats.json" || exit 0
-          git push
+          # Verificamos si hay cambios antes de hacer commit
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No hay cambios que subir."
+          else
+            git commit -m "Actualización automática de estadísticas"
+            git push
+          fi
