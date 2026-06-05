@@ -2,75 +2,55 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Minería BTC</title>
+    <title>Dashboard Minería Real</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased p-6">
-
-    <div class="max-w-5xl mx-auto space-y-6">
-        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold text-orange-400">Dashboard CKPool</h1>
-                <p class="text-xs text-slate-400" id="last-update">Sincronizando...</p>
-            </div>
-            <i class="fa-solid fa-bitcoin-sign text-3xl text-orange-500/50"></i>
-        </div>
-
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden">
-            <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800">
-                <h3 class="text-sm font-bold text-slate-300">Detalle por Worker</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="bg-slate-950/80 text-slate-400 uppercase tracking-wider border-b border-slate-800">
-                            <th class="px-5 py-3">Nombre</th>
-                            <th class="px-5 py-3">Hashrate (5m)</th>
-                            <th class="px-5 py-3">Hashrate (1d)</th>
-                            <th class="px-5 py-3">Shares</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-workers" class="divide-y divide-slate-800/50 text-slate-300">
-                        <tr><td colspan="4" class="px-5 py-4 text-center">Cargando datos...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+<body class="bg-slate-950 text-slate-100 p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-xl font-bold mb-4">Estado del Worker (CKPool)</h1>
+        <p id="last-update" class="text-sm text-slate-400 mb-6">Cargando...</p>
+        
+        <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="bg-slate-950 uppercase text-slate-500">
+                        <th class="p-4">Worker</th>
+                        <th class="p-4">Hashrate (5m)</th>
+                        <th class="p-4">Hashrate (1d)</th>
+                        <th class="p-4">Shares</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-workers" class="divide-y divide-slate-800">
+                    <tr><td colspan="4" class="p-4 text-center">Cargando...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Cambia tu línea de fetch actual por esta:
-fetch('stats.json?t=' + new Date().getTime())            .then(r => r.json())
+        fetch('stats.json?t=' + new Date().getTime())
+            .then(r => r.json())
             .then(d => {
-                document.getElementById('last-update').innerText = "Última sincronización: " + (d.last_updated || 'N/A');
-                
+                document.getElementById('last-update').innerText = "Última actualización: " + d.last_updated;
                 const tabla = document.getElementById('tabla-workers');
-                tabla.innerHTML = ""; 
+                tabla.innerHTML = "";
 
                 if (d.worker) {
                     Object.entries(d.worker).forEach(([nombre, w]) => {
-                        // Formateo seguro para evitar errores con strings o números
-                        const h5m = w.hashrate5m || 0;
-                        const h1d = w.hashrate1d || 0;
+                        // CKPool entrega los datos en hashes/s, dividimos por 1 billón (1e12) para TH/s
+                        const h5m = (w.hashrate5m / 1e12).toFixed(3);
+                        const h1d = (w.hashrate1d / 1e12).toFixed(3);
                         
                         tabla.innerHTML += `
-                            <tr class="hover:bg-slate-850/40 transition">
-                                <td class="px-5 py-3 font-mono font-bold text-orange-400">${nombre}</td>
-                                <td class="px-5 py-3">${h5m}</td>
-                                <td class="px-5 py-3">${h1d}</td>
-                                <td class="px-5 py-3">${w.shares || 0}</td>
+                            <tr class="hover:bg-slate-800">
+                                <td class="p-4 font-bold text-orange-400">${nombre}</td>
+                                <td class="p-4">${h5m} TH/s</td>
+                                <td class="p-4">${h1d} TH/s</td>
+                                <td class="p-4">${w.shares.toLocaleString()}</td>
                             </tr>
                         `;
                     });
-                } else {
-                    tabla.innerHTML = `<tr><td colspan="4" class="px-5 py-4 text-center text-slate-500">No hay workers activos.</td></tr>`;
                 }
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                document.getElementById('tabla-workers').innerHTML = `<tr><td colspan="4" class="px-5 py-4 text-center text-red-500">Error de conexión.</td></tr>`;
             });
     </script>
 </body>
