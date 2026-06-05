@@ -1,26 +1,25 @@
-<script>
-    function intentarCargar(intentos = 3) {
-        fetch('stats.json?t=' + new Date().getTime()) // El parámetro 't' evita la caché
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Minería</title>
+</head>
+<body>
+    <div id="stats">Cargando datos...</div>
+    <script>
+        fetch('stats.json')
             .then(response => response.json())
             .then(data => {
-                if (data && data.worker && data.worker.length > 0) {
-                    const w = data.worker[0];
-                    document.getElementById('stats').innerHTML = `
-                        <p><strong>Hashrate (1d):</strong> ${w.hashrate1d}</p>
-                        <p><strong>Shares:</strong> ${w.shares}</p>
-                    `;
-                } else {
-                    throw new Error("Estructura JSON inválida");
-                }
+                const w = data.worker[0];
+                document.getElementById('stats').innerHTML = `
+                    <p><strong>Última actualización:</strong> ${data.last_updated}</p>
+                    <p><strong>Hashrate (1 día):</strong> ${w.hashrate1d}</p>
+                    <p><strong>Total Shares:</strong> ${w.shares}</p>
+                `;
             })
             .catch(err => {
-                if (intentos > 0) {
-                    console.log(`Reintentando... quedan ${intentos} intentos.`);
-                    setTimeout(() => intentarCargar(intentos - 1), 5000); // Espera 5 segundos
-                } else {
-                    document.getElementById('stats').innerText = "No se pudieron cargar los datos.";
-                }
+                document.getElementById('stats').innerText = "Error: Asegúrate de que stats.json existe en la raíz.";
             });
-    }
-    intentarCargar();
-</script>
+    </script>
+</body>
+</html>
