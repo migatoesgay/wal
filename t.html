@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Minería CKPool</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; width: 300px; }
+    </style>
+</head>
+<body>
+
+    <h1>Mis Estadísticas de Minería</h1>
+    
+    <div class="card" id="stats">
+        <p>Cargando datos...</p>
+    </div>
+
+    <script>
+        // Función para cargar los datos desde el JSON generado por GitHub Actions
+        async function loadStats() {
+            try {
+                const response = await fetch('stats.json');
+                const data = await response.json();
+                
+                document.getElementById('stats').innerHTML = `
+                    <p><strong>Hashrate:</strong> ${data.hashrate}</p>
+                    <p><strong>Último Share:</strong> ${data.last_share}</p>
+                    <p><strong>Bloques encontrados:</strong> ${data.blocks_found}</p>
+                `;
+            } catch (error) {
+                document.getElementById('stats').innerHTML = "Error al cargar los datos.";
+                console.error("Error:", error);
+            }
+        }
+
+        // Ejecutar al cargar la página
+        loadStats();
+    </script>
+</body>
+</html>
