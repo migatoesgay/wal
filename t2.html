@@ -42,8 +42,7 @@
 
     <script>
         // Cambia tu línea de fetch actual por esta:
-fetch('https://corsproxy.io/?' + encodeURIComponent('https://solo.ckpool.org/users/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl.json'))
-            .then(r => r.json())
+fetch('stats.json?t=' + new Date().getTime())            .then(r => r.json())
             .then(d => {
                 document.getElementById('last-update').innerText = "Última sincronización: " + (d.last_updated || 'N/A');
                 
