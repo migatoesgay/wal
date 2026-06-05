@@ -1,20 +1,30 @@
 <!DOCTYPE html>
 <html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estado de Minería</title>
+</head>
 <body>
     <h1>Mis Estadísticas Reales</h1>
-    <div id="stats">Cargando...</div>
+    <div id="stats">Cargando datos...</div>
 
     <script>
         fetch('stats.json')
             .then(response => response.json())
             .then(data => {
-                // Accedemos a los datos del worker (el primero del array)
-                const worker = data.worker[0];
+                // El JSON tiene la lista "worker", tomamos el primero [0]
+                const w = data.worker[0];
+                
                 document.getElementById('stats').innerHTML = `
-                    <p><strong>Hashrate (1 día):</strong> ${worker.hashrate1d}</p>
-                    <p><strong>Hashrate (7 días):</strong> ${worker.hashrate7d}</p>
-                    <p><strong>Shares Totales:</strong> ${worker.shares}</p>
+                    <p><strong>Hashrate (1 día):</strong> ${w.hashrate1d}</p>
+                    <p><strong>Hashrate (7 días):</strong> ${w.hashrate7d}</p>
+                    <p><strong>Total Shares:</strong> ${w.shares}</p>
+                    <p><strong>Best Share:</strong> ${Math.round(w.bestshare)}</p>
                 `;
+            })
+            .catch(error => {
+                document.getElementById('stats').innerText = "Error cargando datos. Verifica el archivo JSON.";
+                console.error(error);
             });
     </script>
 </body>
