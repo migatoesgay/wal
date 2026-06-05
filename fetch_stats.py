@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 
 # URL de tu billetera en CKPool
-url = "https://stats.ckpool.org/users/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl"
+url = "https://solo.ckpool.org/users/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl.json"
 headers = {'User-Agent': 'Mozilla/5.0'}
 
 try:
