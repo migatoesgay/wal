@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Estadísticas Minería</title>
-</head>
 <body>
-    <h1>Mis Datos de CKPool</h1>
-    <div id="stats-container">Cargando...</div>
+    <h1>Mis Estadísticas Reales</h1>
+    <div id="stats">Cargando...</div>
 
     <script>
         fetch('stats.json')
             .then(response => response.json())
             .then(data => {
-                let html = '<ul>';
-                for (const [key, value] of Object.entries(data)) {
-                    html += `<li><strong>${key.toUpperCase()}:</strong> ${value}</li>`;
-                }
-                html += '</ul>';
-                document.getElementById('stats-container').innerHTML = html;
-            })
-            .catch(() => document.getElementById('stats-container').innerText = "Error cargando datos.");
+                // Accedemos a los datos del worker (el primero del array)
+                const worker = data.worker[0];
+                document.getElementById('stats').innerHTML = `
+                    <p><strong>Hashrate (1 día):</strong> ${worker.hashrate1d}</p>
+                    <p><strong>Hashrate (7 días):</strong> ${worker.hashrate7d}</p>
+                    <p><strong>Shares Totales:</strong> ${worker.shares}</p>
+                `;
+            });
     </script>
 </body>
 </html>
