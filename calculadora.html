@@ -99,6 +99,51 @@
         }
         document.getElementById('res' + t).innerHTML = html + "</table>";
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    const proxyUrl = (targetUrl) => `?proxy=${encodeURIComponent(targetUrl)}`;
+
+async function fetchNetworkDifficulty() {
+    try {
+        // --- BTC: Usa la API de Blockchain.info ---
+        const resBTC = await fetch(proxyUrl('https://blockchain.info/q/getdifficulty'));
+        const diffBTC = await resBTC.json();
+        // Se divide por 1e12 para mostrar en Terahashes (T)
+        document.getElementById('net-diff-btc').innerText = (diffBTC / 1e12).toFixed(2) + " T";
+
+        // --- BCH: Usa la API de Blockchair ---
+        const resBCH = await fetch(proxyUrl('https://api.blockchair.com/bitcoin-cash/stats'));
+        const dataBCH = await resBCH.json();
+        const diffBCH = dataBCH.data.difficulty;
+        // Se divide por 1e9 para mostrar en Gigahashes (G)
+        document.getElementById('net-diff-bch').innerText = (diffBCH / 1e9).toFixed(2) + " G";
+        
+    } catch (err) {
+        console.error("Error al obtener la dificultad:", err);
+        document.getElementById('net-diff-btc').innerText = "Error";
+        document.getElementById('net-diff-bch').innerText = "Error";
+    }
+}
+
+// Ejecución inicial y refresco cada 10 minutos (600000ms)
+fetchNetworkDifficulty();
+setInterval(fetchNetworkDifficulty, 600000);
+
+
+
 </script>
 </body>
 </html>
