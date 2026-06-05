@@ -28,5 +28,5 @@ jobs:
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
           git add stats.json
-          git commit -m "Actualización automática de estadísticas" || exit 0
+          git commit -m "Actualización automática de stats.json" || exit 0
           git push
