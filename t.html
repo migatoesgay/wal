@@ -2,40 +2,24 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Minería CKPool</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; width: 300px; }
-    </style>
+    <title>Estadísticas Minería</title>
 </head>
 <body>
-
-    <h1>Mis Estadísticas de Minería</h1>
-    
-    <div class="card" id="stats">
-        <p>Cargando datos...</p>
-    </div>
+    <h1>Mis Datos de CKPool</h1>
+    <div id="stats-container">Cargando...</div>
 
     <script>
-        // Función para cargar los datos desde el JSON generado por GitHub Actions
-        async function loadStats() {
-            try {
-                const response = await fetch('stats.json');
-                const data = await response.json();
-                
-                document.getElementById('stats').innerHTML = `
-                    <p><strong>Hashrate:</strong> ${data.hashrate}</p>
-                    <p><strong>Último Share:</strong> ${data.last_share}</p>
-                    <p><strong>Bloques encontrados:</strong> ${data.blocks_found}</p>
-                `;
-            } catch (error) {
-                document.getElementById('stats').innerHTML = "Error al cargar los datos.";
-                console.error("Error:", error);
-            }
-        }
-
-        // Ejecutar al cargar la página
-        loadStats();
+        fetch('stats.json')
+            .then(response => response.json())
+            .then(data => {
+                let html = '<ul>';
+                for (const [key, value] of Object.entries(data)) {
+                    html += `<li><strong>${key.toUpperCase()}:</strong> ${value}</li>`;
+                }
+                html += '</ul>';
+                document.getElementById('stats-container').innerHTML = html;
+            })
+            .catch(() => document.getElementById('stats-container').innerText = "Error cargando datos.");
     </script>
 </body>
 </html>
