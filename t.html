@@ -1,31 +1,26 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Estado de Minería</title>
-</head>
-<body>
-    <h1>Mis Estadísticas Reales</h1>
-    <div id="stats">Cargando datos...</div>
-
-    <script>
-        fetch('stats.json')
+<script>
+    function intentarCargar(intentos = 3) {
+        fetch('stats.json?t=' + new Date().getTime()) // El parámetro 't' evita la caché
             .then(response => response.json())
             .then(data => {
-                // El JSON tiene la lista "worker", tomamos el primero [0]
-                const w = data.worker[0];
-                
-                document.getElementById('stats').innerHTML = `
-                    <p><strong>Hashrate (1 día):</strong> ${w.hashrate1d}</p>
-                    <p><strong>Hashrate (7 días):</strong> ${w.hashrate7d}</p>
-                    <p><strong>Total Shares:</strong> ${w.shares}</p>
-                    <p><strong>Best Share:</strong> ${Math.round(w.bestshare)}</p>
-                `;
+                if (data && data.worker && data.worker.length > 0) {
+                    const w = data.worker[0];
+                    document.getElementById('stats').innerHTML = `
+                        <p><strong>Hashrate (1d):</strong> ${w.hashrate1d}</p>
+                        <p><strong>Shares:</strong> ${w.shares}</p>
+                    `;
+                } else {
+                    throw new Error("Estructura JSON inválida");
+                }
             })
-            .catch(error => {
-                document.getElementById('stats').innerText = "Error cargando datos. Verifica el archivo JSON.";
-                console.error(error);
+            .catch(err => {
+                if (intentos > 0) {
+                    console.log(`Reintentando... quedan ${intentos} intentos.`);
+                    setTimeout(() => intentarCargar(intentos - 1), 5000); // Espera 5 segundos
+                } else {
+                    document.getElementById('stats').innerText = "No se pudieron cargar los datos.";
+                }
             });
-    </script>
-</body>
-</html>
+    }
+    intentarCargar();
+</script>
