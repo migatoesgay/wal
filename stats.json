@@ -1,5 +1,28 @@
 {
-  "hashrate": "150 TH/s",
-  "last_share": "2026-06-05 09:00:00",
-  "blocks_found": 0
+    "hashrate1m": "0",
+    "hashrate5m": "0",
+    "hashrate1hr": "0",
+    "hashrate1d": "84M",
+    "hashrate7d": "555M",
+    "lastshare": 1779012642,
+    "workers": 0,
+    "shares": 149000,
+    "bestshare": 98391.81282888557,
+    "bestever": 98391,
+    "authorised": 1779011923,
+    "worker": [
+        {
+            "workername": "bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl",
+            "hashrate1m": "0",
+            "hashrate5m": "0",
+            "hashrate1hr": "0",
+            "hashrate1d": "84M",
+            "hashrate7d": "555M",
+            "lastshare": 1779012642,
+            "shares": 149000,
+            "bestshare": 98391.81282888557,
+            "bestever": 98391
+        }
+    ],
+    "last_updated": "05/06/2026 08:01:58"
 }
