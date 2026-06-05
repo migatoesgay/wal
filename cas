@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Minería Solo Pro</title>
+    <style>
+        :root { --btc: #f7931a; --bch: #8dc351; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
+        .dashboard { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: var(--card); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border-top: 4px solid var(--border-color); }
+        .btc { --border-color: var(--btc); } .bch { --border-color: var(--bch); }
+        h2 { margin-top: 0; font-size: 1.4rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .miner-row { display: grid; grid-template-columns: 1fr 1fr 30px; gap: 5px; margin-bottom: 10px; }
+        label { display: block; margin-top: 15px; margin-bottom: 0.3rem; opacity: 0.8; font-size: 0.75rem; }
+        input, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: var(--border-color); color: white; margin-top: 10px; }
+        .btn-add { background: #475569; font-size: 0.8rem; }
+        .res { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); font-size: 0.9rem; }
+        .info-panel { margin-top: 10px; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; font-size: 0.75rem; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+
+<div class="dashboard" id="mainContainer"></div>
+
+<script>
+    function renderCard(type) {
+        document.getElementById('mainContainer').insertAdjacentHTML('beforeend', `
+            <div class="card ${type.toLowerCase()}">
+                <h2>${type === 'BTC' ? 'Bitcoin' : 'Bitcoin Cash'}</h2>
+                <label>Equipos (Velocidad TH/s | Horas)</label>
+                <div id="${type}MinersContainer">
+                    <div class="miner-row">
+                        <input type="number" class="${type}Speed" placeholder="TH/s">
+                        <input type="number" class="${type}Hours" value="24" placeholder="Horas">
+                        <button onclick="this.parentElement.remove()" style="padding:0; margin:0">×</button>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addMinerField('${type}')">+ Añadir Minero</button>
+                
+                <label>Dificultad de Red (T)</label>
+                <input type="number" id="${type}NetDiff" step="0.01" placeholder="Ej: 90.00">
+                
+                <button onclick="calcular('${type}')">Calcular Probabilidades</button>
+                
+                <div id="res${type}" class="res">
+                    <div class="info-panel" id="info${type}">Ingresa la dificultad para ver datos de bloque.</div>
+                </div>
+            </div>
+        `);
+    }
+
+    // Auto-obtener dificultad BTC
+    fetch('https://blockchain.info/q/getdifficulty')
+        .then(res => res.json())
+        .then(data => { document.getElementById('BTCNetDiff').value = (data / 1e12).toFixed(2); });
+
+    function addMinerField(t) {
+        document.getElementById(t + 'MinersContainer').insertAdjacentHTML('beforeend', `
+            <div class="miner-row">
+                <input type="number" class="${t}Speed" placeholder="TH/s">
+                <input type="number" class="${t}Hours" value="24" placeholder="Horas">
+                <button onclick="this.parentElement.remove()" style="padding:0; margin:0">×</button>
+            </div>`);
+    }
+
+    function calcular(t) {
+        const diffT = parseFloat(document.getElementById(t + 'NetDiff').value);
+        if (!diffT) return alert("Ingresa la dificultad.");
+
+        const speeds = document.querySelectorAll('.' + t + 'Speed');
+        const hours = document.querySelectorAll('.' + t + 'Hours');
+        let totalUserTH = 0;
+        speeds.forEach((s, index) => {
+            totalUserTH += (parseFloat(s.value) || 0) * ((parseFloat(hours[index].value) || 24) / 24);
+        });
+
+        // Constantes: Dificultad 1 = 2^32 hashes. Tiempo bloque = 600s
+        const netHashRateH = (diffT * 1e12 * 4294967296) / 600;
+        const userHashRateH = totalUserTH * 1e12;
+        const pPerBlock = userHashRateH / netHashRateH;
+        
+        // Mostrar info de bloque
+        document.getElementById('info' + t).innerHTML = `
+            <strong>Hashrate Red:</strong> ${(netHashRateH / 1e18).toFixed(2)} EH/s<br>
+            <strong>Para 1 bloque (10min):</strong> ${((netHashRateH / 1e12) / 6).toFixed(2)} TH/s
+        `;
+
+        let html = "<table>";
+        const periods = { "1 Día": 144, "1 Semana": 1008, "1 Mes": 4320 };
+        for (let p in periods) {
+            const prob = (1 - Math.pow((1 - pPerBlock), periods[p])) * 100;
+            html += `<tr><td>${p}:</td><td align="right"><strong>${prob.toFixed(8)}%</strong></td></tr>`;
+        }
+        document.getElementById('res' + t).innerHTML += html + "</table>";
+    }
+
+    renderCard('BTC'); renderCard('BCH');
+</script>
+</body>
+</html>
