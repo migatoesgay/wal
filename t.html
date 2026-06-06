@@ -45,7 +45,7 @@
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
     <div class="bg-slate-900/60 p-2 rounded-2xl border border-slate-800/80 flex flex-wrap gap-2">
-        <button onclick="switchTab('bch')" id="btn-tab-bch" class="tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/5">
+        <button onclick="switchTab('bch')" id="btn-tab-bch" class="tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
             <i class="fa-solid fa-coins text-lg"></i>
             <div class="text-left"><p class="text-xs opacity-70 leading-none">Cripto: BCH</p><p class="text-sm font-bold">SoloMining.io</p></div>
         </button>
@@ -57,9 +57,13 @@
             <i class="fa-solid fa-microchip text-lg text-cyan-400"></i>
             <div class="text-left"><p class="text-xs opacity-70 leading-none">Cripto: BTC</p><p class="text-sm font-bold">Public-Pool</p></div>
         </button>
+        <button onclick="switchTab('add')" id="btn-tab-add" class="tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200" style="margin-left:auto">
+            <i class="fa-solid fa-folder-plus text-lg text-emerald-500"></i>
+            <div class="text-left"><p class="text-xs opacity-70 leading-none">Configuración</p><p class="text-sm font-bold">Añadir Pool</p></div>
+        </button>
     </div>
 
-    <div id="panel-bch" class="space-y-6 fade-in">
+    <div id="panel-bch" class="space-y-6 hidden">
         <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/20 p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="space-y-1">
                 <div class="flex items-center space-x-2">
@@ -76,7 +80,7 @@
                     <i class="fa-solid fa-rotate-right" id="bch-refresh-icon"></i> Actualizar
                 </button>
                 <div>
-                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Última Sincronización</span>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Última Actualización</span>
                     <p class="text-xs mono text-slate-300 mt-0.5" id="bch-update">Cargando...</p>
                 </div>
             </div>
@@ -84,13 +88,13 @@
 
         <div id="bch-loading" class="flex items-center justify-center py-16 gap-3 text-slate-400">
             <i class="fa-solid fa-circle-notch spin text-amber-400 text-xl"></i>
-            <span class="text-sm">Obteniendo datos en tiempo real...</span>
+            <span class="text-sm">Consultando API de solomining.io en vivo...</span>
         </div>
         
         <div id="bch-error" class="hidden p-5 bg-rose-950/30 border border-rose-800/50 rounded-2xl text-sm text-rose-300 flex items-start gap-3">
             <i class="fa-solid fa-triangle-exclamation text-rose-400 mt-0.5 flex-shrink-0"></i>
             <div>
-                <p class="font-bold mb-1">Error de Conexión</p>
+                <p class="font-bold mb-1">Error de conexión con SoloMining BCH</p>
                 <p id="bch-error-msg" class="text-rose-400 text-xs mono"></p>
             </div>
         </div>
@@ -98,20 +102,84 @@
         <div id="bch-data" class="space-y-6 hidden">
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
-                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 1m</p>
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 1 minuto</p>
                     <div class="flex items-baseline space-x-1 text-amber-400"><span class="text-2xl font-bold mono" id="bch-hr1m">—</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">Instantáneo</p>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
-                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 5m</p>
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 5 minutos</p>
                     <div class="flex items-baseline space-x-1 text-blue-400"><span class="text-2xl font-bold mono" id="bch-hr5m">—</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">Corto plazo</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 1 hora</p>
+                    <div class="flex items-baseline space-x-1 text-emerald-400"><span class="text-2xl font-bold mono" id="bch-hr1h">—</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">Media horaria</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 7 días</p>
+                    <div class="flex items-baseline space-x-1 text-purple-400"><span class="text-2xl font-bold mono" id="bch-hr7d">—</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">Promedio semanal</p>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
                     <p class="text-xs font-medium text-slate-400 mb-2">Shares Aceptados</p>
-                    <div class="flex items-baseline space-x-1 text-emerald-400"><span class="text-2xl font-bold mono" id="bch-shares-a">—</span></div>
+                    <div class="flex items-baseline space-x-1 text-slate-100"><span class="text-xl font-bold mono" id="bch-shares-a">—</span></div>
+                    <p class="text-[11px] text-emerald-400 mt-2">Dificultad acumulada</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Shares Rechazados</p>
+                    <div class="flex items-baseline space-x-1 text-rose-400"><span class="text-xl font-bold mono" id="bch-shares-r">—</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">Errores de envío</p>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Mejor Share</p>
+                    <div class="flex items-baseline space-x-1 text-cyan-400"><span class="text-xl font-bold mono" id="bch-bestshare">—</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">Dificultad máxima</p>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
                     <p class="text-xs font-medium text-slate-400 mb-2">Workers Activos</p>
                     <div class="flex items-baseline space-x-1 text-orange-400"><span class="text-2xl font-bold mono" id="bch-workers">—</span></div>
+                    <p class="text-[11px] text-slate-500 mt-2">Conectados ahora</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 lg:col-span-2">
+                    <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-chart-area text-amber-500 mr-2"></i>Curva de Hashrate BCH (7d → 1m)</h3>
+                    <div class="h-56 relative w-full"><canvas id="chartBCH"></canvas></div>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-circle-info text-amber-500 mr-2"></i>Estado del Pool BCH</h3>
+                        <div id="bch-status-box" class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs space-y-1.5"></div>
+                    </div>
+                    <a href="https://bchnode.solomining.io/address.php?a=qr23d7d2waqnfmjk9c5t3jvqwz69wpy70uv65fs5pq" target="_blank" class="mt-4 w-full py-2 hover:bg-slate-800 border border-slate-700 text-xs font-medium rounded-xl text-center block text-slate-300 transition">
+                        Ver datos en solomining.io <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden">
+                <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-slate-300"><i class="fa-solid fa-microchip text-amber-500 mr-2"></i>Workers Registrados en BCH</h3>
+                    <span class="text-xs text-slate-500 mono" id="bch-workers-count">0 workers</span>
+                </div>
+                <div class="overflow-x-auto text-xs">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr class="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
+                                <th class="px-5 py-3">Worker</th>
+                                <th class="px-5 py-3">Hashrate 1m</th>
+                                <th class="px-5 py-3">Hashrate 5m</th>
+                                <th class="px-5 py-3">Hashrate 1h</th>
+                                <th class="px-5 py-3">Hashrate 1d</th>
+                                <th class="px-5 py-3">Hashrate 7d</th>
+                                <th class="px-5 py-3">Shares Ac.</th>
+                                <th class="px-5 py-3">Mejor Share</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bch-workers-table" class="divide-y divide-slate-800/50 text-slate-300"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -122,7 +190,7 @@
             <div class="space-y-1">
                 <div class="flex items-center space-x-2">
                     <span class="text-xs font-bold tracking-wider text-orange-400 uppercase bg-orange-400/10 px-2 py-0.5 rounded">Bitcoin (BTC)</span>
-                    <span class="text-xs text-slate-500">Solo CKPool</span>
+                    <span class="text-xs text-slate-500">Solo CKPool (Solo Mining)</span>
                 </div>
                 <div class="flex items-center space-x-2 text-slate-300 pt-1">
                     <i class="fa-solid fa-wallet text-orange-500/70"></i>
@@ -142,9 +210,16 @@
 
         <div id="btc-loading" class="flex items-center justify-center py-16 gap-3 text-slate-400">
             <i class="fa-solid fa-circle-notch spin text-orange-400 text-xl"></i>
-            <span class="text-sm">Consultando API en tiempo real...</span>
+            <span class="text-sm">Consultando API de CKPool en vivo...</span>
         </div>
-        <div id="btc-error" class="hidden p-5 bg-rose-950/30 border border-rose-800/50 rounded-2xl text-sm text-rose-300"></div>
+        
+        <div id="btc-error" class="hidden p-5 bg-rose-950/30 border border-rose-800/50 rounded-2xl text-sm text-rose-300 flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-rose-400 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <p class="font-bold mb-1">No se pudo conectar con CKPool</p>
+                <p id="btc-error-msg" class="text-rose-400 text-xs mono"></p>
+            </div>
+        </div>
 
         <div id="btc-data" class="space-y-6 hidden">
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -157,18 +232,67 @@
                     <div class="flex items-baseline text-slate-200"><span class="text-2xl font-bold mono" id="btc-hr1h">—</span></div>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 1 día</p>
+                    <div class="flex items-baseline text-blue-400"><span class="text-2xl font-bold mono" id="btc-hr1d">—</span></div>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Mejor Share</p>
+                    <div class="flex items-baseline text-purple-400"><span class="text-2xl font-bold mono" id="btc-bestshare">—</span></div>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
                     <p class="text-xs font-medium text-slate-400 mb-2">Shares Aceptados</p>
-                    <div class="flex items-baseline text-emerald-400"><span class="text-2xl font-bold mono" id="btc-shares-a">—</span></div>
+                    <div class="flex items-baseline text-emerald-400"><span class="text-xl font-bold mono" id="btc-shares-a">—</span></div>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Shares Rechazados</p>
+                    <div class="flex items-baseline text-rose-400"><span class="text-xl font-bold mono" id="btc-shares-r">—</span></div>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
                     <p class="text-xs font-medium text-slate-400 mb-2">Workers</p>
                     <div class="flex items-baseline text-cyan-400"><span class="text-2xl font-bold mono" id="btc-workers">—</span></div>
                 </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 7 días</p>
+                    <div class="flex items-baseline text-amber-400"><span class="text-2xl font-bold mono" id="btc-hr7d">—</span></div>
+                </div>
             </div>
-            
-            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80">
-                <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-chart-area text-orange-500 mr-2"></i>Rendimiento BTC</h3>
-                <div class="h-56 relative w-full"><canvas id="chartBTC"></canvas></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 lg:col-span-2">
+                    <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-chart-area text-orange-500 mr-2"></i>Rendimiento BTC (CKPool)</h3>
+                    <div class="h-56 relative w-full"><canvas id="chartBTC"></canvas></div>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-circle-check text-emerald-400 mr-2"></i>Diagnóstico BTC</h3>
+                        <div id="btc-status-box" class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs space-y-1.5"></div>
+                    </div>
+                    <a href="https://eusolostats.ckpool.org/users/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl" target="_blank" class="mt-4 w-full py-2 hover:bg-slate-800 border border-slate-700 text-xs font-medium rounded-xl text-center block text-slate-300 transition">
+                        Ver en CKPool Stats <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden">
+                <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800">
+                    <h3 class="text-sm font-bold text-slate-300"><i class="fa-solid fa-microchip text-orange-500 mr-2"></i>Workers BTC (CKPool)</h3>
+                </div>
+                <div class="overflow-x-auto text-xs">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
+                                <th class="px-5 py-3">Worker</th>
+                                <th class="px-5 py-3">5m</th>
+                                <th class="px-5 py-3">1h</th>
+                                <th class="px-5 py-3">1d</th>
+                                <th class="px-5 py-3">7d</th>
+                                <th class="px-5 py-3">Shares</th>
+                                <th class="px-5 py-3">Último Share</th>
+                            </tr>
+                        </thead>
+                        <tbody id="btc-workers-table" class="divide-y divide-slate-800/50 text-slate-300"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -178,7 +302,7 @@
             <div class="space-y-1">
                 <div class="flex items-center space-x-2">
                     <span class="text-xs font-bold tracking-wider text-cyan-400 uppercase bg-cyan-400/10 px-2 py-0.5 rounded">Bitcoin (BTC)</span>
-                    <span class="text-xs text-slate-500">Public-Pool</span>
+                    <span class="text-xs text-slate-500">Public-Pool (Bitaxe / Open-Source)</span>
                 </div>
                 <div class="flex items-center space-x-2 text-slate-300 pt-1">
                     <i class="fa-solid fa-wallet text-cyan-400/70"></i>
@@ -198,184 +322,440 @@
 
         <div id="pp-loading" class="flex items-center justify-center py-16 gap-3 text-slate-400">
             <i class="fa-solid fa-circle-notch spin text-cyan-400 text-xl"></i>
-            <span class="text-sm">Consultando API en tiempo real...</span>
+            <span class="text-sm">Consultando API de Public-Pool en vivo...</span>
         </div>
-        <div id="pp-error" class="hidden p-5 bg-rose-950/30 border border-rose-800/50 rounded-2xl text-sm text-rose-300"></div>
+        
+        <div id="pp-error" class="hidden p-5 bg-rose-950/30 border border-rose-800/50 rounded-2xl text-sm text-rose-300 flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-rose-400 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <p class="font-bold mb-1">No se pudo conectar con Public-Pool</p>
+                <p id="pp-error-msg" class="text-rose-400 text-xs mono"></p>
+            </div>
+        </div>
 
         <div id="pp-data" class="space-y-6 hidden">
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
-                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate Actual</p>
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 5 min</p>
                     <div class="flex items-baseline text-cyan-400"><span class="text-2xl font-bold mono" id="pp-hr5m">—</span></div>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
-                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate Medio</p>
+                    <p class="text-xs font-medium text-slate-400 mb-2">Hashrate 24h</p>
                     <div class="flex items-baseline text-slate-200"><span class="text-2xl font-bold mono" id="pp-hr24h">—</span></div>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
-                    <p class="text-xs font-medium text-slate-400 mb-2">Shares</p>
-                    <div class="flex items-baseline text-emerald-400"><span class="text-2xl font-bold mono" id="pp-shares">—</span></div>
+                    <p class="text-xs font-medium text-slate-400 mb-2">Shares Válidos</p>
+                    <div class="flex items-baseline text-emerald-400"><span class="text-xl font-bold mono" id="pp-shares">—</span></div>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 shadow-md">
                     <p class="text-xs font-medium text-slate-400 mb-2">Workers</p>
                     <div class="flex items-baseline text-purple-400"><span class="text-2xl font-bold mono" id="pp-workers">—</span></div>
                 </div>
             </div>
-            
-            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80">
-                <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-chart-area text-cyan-400 mr-2"></i>Rendimiento Public-Pool</h3>
-                <div class="h-56 relative w-full"><canvas id="chartPublicPool"></canvas></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 lg:col-span-2">
+                    <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-chart-area text-cyan-400 mr-2"></i>Rendimiento Public-Pool (GH/s)</h3>
+                    <div class="h-56 relative w-full"><canvas id="chartPublicPool"></canvas></div>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold mb-3 text-slate-300"><i class="fa-solid fa-circle-nodes text-cyan-400 mr-2"></i>Info del Pool</h3>
+                        <div id="pp-status-box" class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs space-y-1.5"></div>
+                    </div>
+                    <a href="https://web.public-pool.io/#/app/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl" target="_blank" class="mt-4 w-full py-2 hover:bg-slate-800 border border-slate-700 text-xs font-medium rounded-xl text-center block text-slate-300 transition">
+                        Ver en Public-Pool App <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden">
+                <div class="px-5 py-4 bg-slate-950/40 border-b border-slate-800">
+                    <h3 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-microchip mr-2"></i>Workers Public-Pool</h3>
+                </div>
+                <div class="overflow-x-auto text-xs">
+                    <table class="w-full text-left border-collapse min-w-[500px]">
+                        <thead>
+                            <tr class="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
+                                <th class="px-5 py-3">Worker</th>
+                                <th class="px-5 py-3">5m</th>
+                                <th class="px-5 py-3">24h</th>
+                                <th class="px-5 py-3">Shares</th>
+                                <th class="px-5 py-3">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pp-workers-table" class="divide-y divide-slate-800/50 text-slate-300"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="panel-add" class="space-y-6 hidden">
+        <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/20 p-6 rounded-2xl border border-slate-800 shadow-xl">
+            <div class="max-w-xl">
+                <h2 class="text-lg font-bold text-slate-200 flex items-center mb-1">
+                    <i class="fa-solid fa-circle-plus text-emerald-500 mr-2"></i> Configurar Nuevo Pool de Minería
+                </h2>
+                <p class="text-xs text-slate-400 mb-6">Integra un nuevo nodo o wallet de seguimiento a tu panel centralizado.</p>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Algoritmo / Criptomoneda</label>
+                            <select class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-emerald-500 transition">
+                                <option>Bitcoin (BTC) - SHA-256</option>
+                                <option>Bitcoin Cash (BCH) - SHA-256</option>
+                                <option>Litecoin (LTC) - Scrypt</option>
+                                <option>Kaspa (KAS) - kHeavyHash</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Nombre del Pool (Alias)</label>
+                            <input type="text" placeholder="Ej. Solo CKPool, Binance Pool" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Dirección Wallet o Usuario</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-wallet"></i></span>
+                            <input type="text" placeholder="bc1q... o dirección del nodo" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-300 mono placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">URL API / Endpoint (Opcional)</label>
+                        <input type="url" placeholder="https://api.ejemplo.org/user/stats" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 mono placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition">
+                    </div>
+                    <div class="pt-2 flex justify-end">
+                        <button onclick="alert('Funcionalidad de backend simulada: ¡Pool guardado!')" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Conexión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
 
+<footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-slate-900 text-center text-xs text-slate-500">
+    Dashboard Multi-Minería v4.0 • Datos en tiempo real desde las APIs de cada pool.
+</footer>
+
 <script>
-// ─── UTILIDADES ──────────────────────────────────────────────────────────
-function updateClock() { document.getElementById('live-clock').innerText = new Date().toLocaleString('es-ES'); }
-setInterval(updateClock, 1000); updateClock();
+// ─── RELOJ CENTRAL ─────────────────────────────────────────────────────────
+function updateClock() {
+    document.getElementById('live-clock').innerText = new Date().toLocaleString('es-ES');
+}
+updateClock();
+setInterval(updateClock, 1000);
 
-function fmtNum(n) { return (!n && n !== 0) ? '—' : Number(n).toLocaleString('es-ES'); }
+// ─── INSTANCIAS DE GRÁFICOS ──────────────────────────────────────────────
+let chartInstances = {};
 
-// ─── PROXY FETCH (Solución al CORS) ──────────────────────────────────────
-async function fetchProxy(url) {
-    // Usamos allorigins.win para saltar el CORS de forma gratuita desde el frontend
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    const res = await fetch(proxyUrl, { cache: 'no-cache' });
-    if (!res.ok) throw new Error('Error en el proxy');
-    const data = await res.json();
-    return JSON.parse(data.contents);
+function destroyChart(id) {
+    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
 }
 
-// ─── LÓGICA DE GRÁFICOS ──────────────────────────────────────────────────
-let chartInstances = {};
 function makeLineChart(canvasId, labels, data, color) {
-    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+    destroyChart(canvasId);
     const ctx = document.getElementById(canvasId).getContext('2d');
     chartInstances[canvasId] = new Chart(ctx, {
         type: 'line',
-        data: { labels, datasets: [{ data, borderColor: color, backgroundColor: color+'18', fill: true, tension: 0.3 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } } } }
+        data: {
+            labels,
+            datasets: [{
+                data,
+                borderColor: color,
+                backgroundColor: color + '18',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.3,
+                pointBackgroundColor: color,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: {
+                callbacks: { label: ctx => ' ' + ctx.parsed.y.toLocaleString('es-ES', {maximumFractionDigits:2}) }
+            }},
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b', font: { size: 9, family: 'JetBrains Mono' } } },
+                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+            }
+        }
     });
 }
-function hrToNum(s) {
-    if (!s) return 0;
-    const m = String(s).match(/^([\d.]+)([KMGTP]?)/);
-    if (!m) return 0;
-    const u = {'':1,'K':1e3,'M':1e6,'G':1e9,'T':1e12,'P':1e15}[m[2]] || 1;
-    return (parseFloat(m[1]) * u) / 1e12; // Normaliza todo a TH/s
+
+// ─── UTILIDADES GLOBALES DE FORMATEO ──────────────────────────────────────
+function fmtNum(n) {
+    if (n === undefined || n === null || isNaN(Number(n))) return '—';
+    return Number(n).toLocaleString('es-ES');
 }
 
-// ─── FUNCIONES DE CARGA (Tiempo Real) ────────────────────────────────────
+function fmtDate(ts) {
+    if (!ts) return '—';
+    return new Date(ts * 1000).toLocaleString('es-ES');
+}
 
-// SOLOMINING (BCH)
+function statusBadge(online) {
+    return online
+        ? `<span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>Online</span>`
+        : `<span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">Offline</span>`;
+}
+
+// Limpia las unidades de hashrate (ej: "1.25T" -> 1250) y retorna un número en GH/s para que ChartJS funcione
+function hrToNum(s) {
+    if (!s) return 0;
+    const m = String(s).match(/^([\d.]+)([KMGTP]?)/i);
+    if (!m) return 0;
+    const n = parseFloat(m[1]);
+    const u = {'':1,'K':1e3,'M':1e6,'G':1e9,'T':1e12,'P':1e15}[m[2].toUpperCase()] || 1;
+    return (n * u) / 1e9; 
+}
+
+// ─── PROXY INVERSO PARA RESOLVER CORS EN ENTORNO LOCAL (.html directo) ────
+async function fetchWithCORSProxy(url) {
+    // Usamos api.allorigins.win para saltarnos el bloqueo CORS del navegador sin requerir backend propio
+    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP Proxy Error: ${res.status}`);
+    const wrapper = await res.json();
+    if (!wrapper.contents) throw new Error('No se recibió contenido del proxy');
+    return JSON.parse(wrapper.contents);
+}
+
+// ─── MANEJADOR API 1: SOLOMINING (BCH) ────────────────────────────────────
 async function loadBCH() {
     const icon = document.getElementById('bch-refresh-icon');
-    if(icon) icon.classList.add('spin');
+    if (icon) icon.classList.add('spin');
+    
+    document.getElementById('bch-loading').classList.remove('hidden');
+    document.getElementById('bch-error').classList.add('hidden');
+    document.getElementById('bch-data').classList.add('hidden');
+
     try {
-        const data = await fetchProxy('https://bchnode.solomining.io/api.php?a=qr23d7d2waqnfmjk9c5t3jvqwz69wpy70uv65fs5pq');
+        const d = await fetchWithCORSProxy('https://bchnode.solomining.io/api.php?a=qr23d7d2waqnfmjk9c5t3jvqwz69wpy70uv65fs5pq');
         
         document.getElementById('bch-loading').classList.add('hidden');
         document.getElementById('bch-data').classList.remove('hidden');
-        document.getElementById('bch-update').innerText = new Date().toLocaleString('es-ES');
-        
-        document.getElementById('bch-hr1m').innerText = data.hashrate1m || '0';
-        document.getElementById('bch-hr5m').innerText = data.hashrate5m || '0';
-        document.getElementById('bch-shares-a').innerText = fmtNum(data.shares_diff_a);
-        document.getElementById('bch-workers').innerText = data.workers || '0';
-        
+        document.getElementById('bch-update').innerText = d.lastupdate ? fmtDate(d.lastupdate) : new Date().toLocaleString('es-ES');
+
+        document.getElementById('bch-hr1m').innerText  = d.hashrate1m  || '0 H/s';
+        document.getElementById('bch-hr5m').innerText  = d.hashrate5m  || '0 H/s';
+        document.getElementById('bch-hr1h').innerText  = d.hashrate1hr || '0 H/s';
+        document.getElementById('bch-hr7d').innerText  = d.hashrate7d  || '0 H/s';
+        document.getElementById('bch-shares-a').innerText = fmtNum(d.shares_diff_a);
+        document.getElementById('bch-shares-r').innerText = fmtNum(d.shares_diff_r);
+        document.getElementById('bch-bestshare').innerText = d.bestshare ? (d.bestshare / 1e6).toFixed(1) + 'M' : '—';
+        document.getElementById('bch-workers').innerText = d.workers ?? '0';
+        document.getElementById('bch-workers-count').innerText = `${(d.worker || []).length} workers`;
+
+        const online = (d.u_hashrate5m || hrToNum(d.hashrate5m)) > 0;
+        document.getElementById('bch-status-box').innerHTML = online
+            ? `<p class="font-bold text-emerald-400 mb-1">✓ Pool Operativo</p><p class="text-slate-400">Hashrate activo detectado. El minero está enviando shares correctamente.</p>`
+            : `<p class="font-bold text-rose-400 mb-1">⚠ Sin Actividad Reciente</p><p class="text-slate-400">Los indicadores de corto plazo están en 0. Verifica la conexión de tus rigs.</p>`;
+
+        const labels = ['7d','1d','1h','5m','1m'];
+        const vals = [d.hashrate7d, d.hashrate1d || d.hashrate1hr, d.hashrate1hr, d.hashrate5m, d.hashrate1m].map(hrToNum);
+        makeLineChart('chartBCH', labels, vals, '#f59e0b');
+
+        const tbody = document.getElementById('bch-workers-table');
+        tbody.innerHTML = '';
+        const workers = d.worker || [];
+        if (workers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-4 text-slate-500 text-center">No hay workers activos reportados</td></tr>`;
+        }
+        workers.forEach(w => {
+            const isActive = hrToNum(w.hashrate5m) > 0;
+            tbody.innerHTML += `
+            <tr class="hover:bg-slate-800/30">
+                <td class="px-5 py-3 mono text-amber-400 font-bold max-w-[220px] truncate">${w.workername || '—'}</td>
+                <td class="px-5 py-3 font-bold ${isActive?'text-amber-400':'text-slate-500'}">${w.hashrate1m || '0'}</td>
+                <td class="px-5 py-3">${w.hashrate5m || '0'}</td>
+                <td class="px-5 py-3">${w.hashrate1hr || '0'}</td>
+                <td class="px-5 py-3">${w.hashrate1d || '0'}</td>
+                <td class="px-5 py-3">${w.hashrate7d || '0'}</td>
+                <td class="px-5 py-3 mono text-slate-400">${fmtNum(w.shares_diff_a)}</td>
+                <td class="px-5 py-3 mono text-cyan-400">${w.bestshare ? (w.bestshare/1e6).toFixed(1)+'M' : '—'}</td>
+            </tr>`;
+        });
     } catch(err) {
         document.getElementById('bch-loading').classList.add('hidden');
         document.getElementById('bch-error').classList.remove('hidden');
-        document.getElementById('bch-error-msg').innerText = "No se pudo conectar con Solomining.io. Asegúrate de que tu worker está activo o la API está pública.";
+        document.getElementById('bch-error-msg').innerText = err.message;
     }
-    if(icon) icon.classList.remove('spin');
+    if (icon) icon.classList.remove('spin');
 }
 
-// CKPOOL (BTC)
+// ─── MANEJADOR API 2: CKPOOL (BTC) ────────────────────────────────────────
 async function loadBTC() {
     const icon = document.getElementById('btc-refresh-icon');
-    if(icon) icon.classList.add('spin');
+    if (icon) icon.classList.add('spin');
+    
+    document.getElementById('btc-loading').classList.remove('hidden');
+    document.getElementById('btc-error').classList.add('hidden');
+    document.getElementById('btc-data').classList.add('hidden');
+
     try {
-        const data = await fetchProxy('https://solo.ckpool.org/users/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl');
+        // Consultamos la API oficial de CKPool mediante el proxy
+        const d = await fetchWithCORSProxy('https://solo.ckpool.org/users/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl');
         
         document.getElementById('btc-loading').classList.add('hidden');
         document.getElementById('btc-data').classList.remove('hidden');
         document.getElementById('btc-update').innerText = new Date().toLocaleString('es-ES');
-        
-        document.getElementById('btc-hr5m').innerText = data.hashrate5m || '0';
-        document.getElementById('btc-hr1h').innerText = data.hashrate1hr || '0';
-        document.getElementById('btc-shares-a').innerText = fmtNum(data.shares_diff_a);
-        document.getElementById('btc-workers').innerText = data.workers || '0';
 
-        makeLineChart('chartBTC', ['7d','1d','1h','5m'], [hrToNum(data.hashrate7d), hrToNum(data.hashrate1d), hrToNum(data.hashrate1hr), hrToNum(data.hashrate5m)], '#f97316');
+        document.getElementById('btc-hr5m').innerText  = d.hashrate5m  || '0 H/s';
+        document.getElementById('btc-hr1h').innerText  = d.hashrate1hr || '0 H/s';
+        document.getElementById('btc-hr1d').innerText  = d.hashrate1d  || '0 H/s';
+        document.getElementById('btc-hr7d').innerText  = d.hashrate7d  || '0 H/s';
+        document.getElementById('btc-shares-a').innerText = fmtNum(d.shares_diff_a);
+        document.getElementById('btc-shares-r').innerText = fmtNum(d.shares_diff_r);
+        document.getElementById('btc-workers').innerText  = d.workers ?? '0';
+        document.getElementById('btc-bestshare').innerText = d.bestshare ? (d.bestshare/1e6).toFixed(1)+'M' : '—';
+
+        document.getElementById('btc-status-box').innerHTML =
+            `<p class="font-bold text-emerald-400 mb-1">✓ Datos Conectados</p>
+             <p class="text-slate-400">Workers: ${d.workers || 0}. Último share registrado: ${d.lastshareagotext || 'N/A'}.</p>`;
+
+        makeLineChart('chartBTC', ['7d','1d','1h','5m'],
+            [d.hashrate7d, d.hashrate1d, d.hashrate1hr, d.hashrate5m].map(hrToNum),
+            '#f97316');
+
+        const tbody = document.getElementById('btc-workers-table');
+        tbody.innerHTML = '';
+        const workers = d.worker || [];
+        if (workers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-4 text-slate-500 text-center">No se encontraron miners conectados en CKPool</td></tr>`;
+        }
+        workers.forEach(w => {
+            tbody.innerHTML += `
+            <tr class="hover:bg-slate-800/30">
+                <td class="px-5 py-3 mono text-orange-400 font-bold">${w.workername || '—'}</td>
+                <td class="px-5 py-3">${w.hashrate5m || '0'}</td>
+                <td class="px-5 py-3">${w.hashrate1hr || '0'}</td>
+                <td class="px-5 py-3">${w.hashrate1d || '0'}</td>
+                <td class="px-5 py-3">${w.hashrate7d || '0'}</td>
+                <td class="px-5 py-3 mono text-slate-400">${fmtNum(w.shares_diff_a)}</td>
+                <td class="px-5 py-3 text-slate-400">${w.lastshareagotext || '—'}</td>
+            </tr>`;
+        });
     } catch(err) {
         document.getElementById('btc-loading').classList.add('hidden');
         document.getElementById('btc-error').classList.remove('hidden');
-        document.getElementById('btc-error').innerHTML = `<p class="font-bold text-rose-400">Fallo conexión CKPool: ${err.message}</p>`;
+        document.getElementById('btc-error-msg').innerText = err.message;
     }
-    if(icon) icon.classList.remove('spin');
+    if (icon) icon.classList.remove('spin');
 }
 
-// PUBLIC POOL (BTC)
+// ─── MANEJADOR API 3: PUBLIC-POOL (BTC) ───────────────────────────────────
 async function loadPublicPool() {
     const icon = document.getElementById('pp-refresh-icon');
-    if(icon) icon.classList.add('spin');
+    if (icon) icon.classList.add('spin');
+    
+    document.getElementById('pp-loading').classList.remove('hidden');
+    document.getElementById('pp-error').classList.add('hidden');
+    document.getElementById('pp-data').classList.add('hidden');
+
     try {
-        // Public Pool normalmente no requiere proxy, pero lo usamos por seguridad si falla.
-        const res = await fetch('https://public-pool.io/api/miner/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl');
-        const data = await res.json();
+        // La estructura real de la API de public-pool devuelve un objeto general con propiedad { data: ... }
+        const responseData = await fetchWithCORSProxy('https://public-pool.io/api/miner/bc1q4gp9ycevf88wz8nhej89m4n2w3s760h88845xl');
         
+        // Mapeamos los datos dependiendo de si vienen anidados o planos
+        const d = responseData.data || responseData;
+
         document.getElementById('pp-loading').classList.add('hidden');
         document.getElementById('pp-data').classList.remove('hidden');
         document.getElementById('pp-update').innerText = new Date().toLocaleString('es-ES');
-        
-        document.getElementById('pp-hr5m').innerText = fmtNum(data.currentHashrate) + ' GH/s';
-        document.getElementById('pp-hr24h').innerText = fmtNum(data.averageHashrate) + ' GH/s';
-        document.getElementById('pp-shares').innerText = fmtNum(data.totalShares);
-        document.getElementById('pp-workers').innerText = data.workersCount || '0';
 
-        makeLineChart('chartPublicPool', ['Medio', 'Actual'], [data.averageHashrate, data.currentHashrate], '#06b6d4');
+        // Conversión y muestra de métricas reales de Public Pool (Unidades nativas en GH/s)
+        const currentHash = d.currentHashrate || d.hashrate5m || 0;
+        const avgHash = d.averageHashrate || d.hashrate1d || 0;
+        
+        document.getElementById('pp-hr5m').innerText  = typeof currentHash === 'string' ? currentHash : fmtNum(currentHash) + ' GH/s';
+        document.getElementById('pp-hr24h').innerText = typeof avgHash === 'string' ? avgHash : fmtNum(avgHash) + ' GH/s';
+        document.getElementById('pp-shares').innerText = fmtNum(d.totalShares || d.shares || d.shareCount);
+        document.getElementById('pp-workers').innerText = d.workersCount || (d.workers ? d.workers.length : 0);
+
+        document.getElementById('pp-status-box').innerHTML =
+            `<p class="font-bold text-cyan-400 mb-1">Pool Descentralizado Activo</p>
+             <p class="text-slate-400">Conexión limpia recibida. Ideal para hardware Bitaxe de código abierto.</p>`;
+
+        // Renderizado del Gráfico de Public Pool
+        makeLineChart('chartPublicPool', ['Promedio 24h', 'Actual (5m)'], [parseFloat(avgHash), parseFloat(currentHash)], '#06b6d4');
+
+        // Procesado dinámico de la tabla de workers
+        const tbody = document.getElementById('pp-workers-table');
+        tbody.innerHTML = '';
+        const workers = d.workers || [];
+        if (workers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-5 py-4 text-slate-500 text-center">No hay workers activos en Public-Pool</td></tr>`;
+        }
+        workers.forEach(w => {
+            const isWorkerOnline = (w.currentHashrate || w.hashrate5m || 0) > 0;
+            tbody.innerHTML += `
+            <tr class="hover:bg-slate-800/30">
+                <td class="px-5 py-3 mono text-cyan-400 font-bold">${w.workerName || w.name || 'Rig Anónimo'}</td>
+                <td class="px-5 py-3 font-bold">${fmtNum(w.currentHashrate || w.hashrate5m)} GH/s</td>
+                <td class="px-5 py-3">${fmtNum(w.averageHashrate || w.hashrate1d)} GH/s</td>
+                <td class="px-5 py-3 mono text-slate-400">${fmtNum(w.totalShares || w.shares)}</td>
+                <td class="px-5 py-3">${statusBadge(isWorkerOnline)}</td>
+            </tr>`;
+        });
     } catch(err) {
         document.getElementById('pp-loading').classList.add('hidden');
         document.getElementById('pp-error').classList.remove('hidden');
-        document.getElementById('pp-error').innerHTML = `<p class="font-bold text-rose-400">Fallo conexión Public-Pool: ${err.message}</p>`;
+        document.getElementById('pp-error-msg').innerText = err.message;
     }
-    if(icon) icon.classList.remove('spin');
+    if (icon) icon.classList.remove('spin');
 }
 
-// ─── TABS Y REFRESH AUTOMÁTICO ───────────────────────────────────────────
-let refreshInterval = null;
+// ─── CONTROLADOR DE PESTAÑAS Y TEMPORIZADORES AUTOMÁTICOS ─────────────────
+let activeRefreshInterval = null;
 
 const TAB_STYLES = {
-    bch:  { active: 'border-amber-500/30 bg-amber-500/10 text-amber-400',  inactive: 'border-slate-800 bg-slate-900/50 text-slate-400' },
-    btc:  { active: 'border-orange-500/30 bg-orange-500/10 text-orange-400', inactive: 'border-slate-800 bg-slate-900/50 text-slate-400' },
-    'public-pool': { active: 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400', inactive: 'border-slate-800 bg-slate-900/50 text-slate-400' }
+    bch:  { active: 'border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/5',  inactive: 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200' },
+    btc:  { active: 'border-orange-500/30 bg-orange-500/10 text-orange-400 shadow-lg shadow-orange-500/5', inactive: 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200' },
+    'public-pool': { active: 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-lg shadow-cyan-500/5', inactive: 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200' },
+    add:  { active: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-lg shadow-emerald-500/5', inactive: 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200' }
 };
 
 function switchTab(tab) {
-    // 1. Ocultar todos y limpiar estilos
-    ['bch','btc','public-pool'].forEach(t => {
+    // 1. Ocultar todos los paneles y resetear estilos de botones
+    ['bch','btc','public-pool','add'].forEach(t => {
         document.getElementById(`panel-${t}`).classList.add('hidden');
-        document.getElementById(`btn-tab-${t}`).className = `tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border ${TAB_STYLES[t].inactive}`;
+        const btn = document.getElementById(`btn-tab-${t}`);
+        if(btn) btn.className = `tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border ${TAB_STYLES[t].inactive}`;
     });
     
-    // 2. Mostrar activo
-    document.getElementById(`panel-${tab}`).classList.remove('hidden');
-    document.getElementById(`panel-${tab}`).classList.add('fade-in');
-    document.getElementById(`btn-tab-${tab}`).className = `tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border shadow-lg ${TAB_STYLES[tab].active}`;
+    // 2. Mostrar el panel de la pestaña seleccionada con efecto fade
+    const activePanel = document.getElementById(`panel-${tab}`);
+    activePanel.classList.remove('hidden');
+    activePanel.classList.add('fade-in');
+    
+    const activeBtn = document.getElementById(`btn-tab-${tab}`);
+    if(activeBtn) activeBtn.className = `tab-btn flex-1 sm:flex-none px-5 py-3 rounded-xl font-semibold flex items-center justify-center space-x-3 transition border ${TAB_STYLES[tab].active}`;
 
-    // 3. Limpiar el temporizador anterior
-    if (refreshInterval) clearInterval(refreshInterval);
+    // 3. Detener temporizadores previos para optimizar ancho de banda
+    if (activeRefreshInterval) clearInterval(activeRefreshInterval);
 
-    // 4. Cargar datos inmediatamente y luego cada 60 segundos
-    if (tab === 'bch') { loadBCH(); refreshInterval = setInterval(loadBCH, 60000); }
-    if (tab === 'btc') { loadBTC(); refreshInterval = setInterval(loadBTC, 60000); }
-    if (tab === 'public-pool') { loadPublicPool(); refreshInterval = setInterval(loadPublicPool, 60000); }
+    // 4. Cargar datos en vivo inmediatamente y programar bucle cada 60 segundos
+    if (tab === 'bch') {
+        loadBCH();
+        activeRefreshInterval = setInterval(loadBCH, 60000);
+    } else if (tab === 'btc') {
+        loadBTC();
+        activeRefreshInterval = setInterval(loadBTC, 60000);
+    } else if (tab === 'public-pool') {
+        loadPublicPool();
+        activeRefreshInterval = setInterval(loadPublicPool, 60000);
+    }
 }
 
-// Iniciar aplicación
-switchTab('bch');
+// Instanciar por primera vez en BCH al cargar la web
+window.onload = function() {
+    switchTab('bch');
+};
 </script>
 </body>
 </html>
