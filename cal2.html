@@ -3,118 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Minería Solo Pro</title>
+    <title>Calculadora Minería BTC Flex</title>
     <style>
-        :root { --btc: #f7931a; --bch: #8dc351; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        :root { --btc: #f7931a; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
-        .dashboard { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: var(--card); padding: 1.5rem; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border-top: 4px solid var(--border-color); }
-        .btc { --border-color: var(--btc); } .bch { --border-color: var(--bch); }
-        h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        .miner-row { display: grid; grid-template-columns: 1fr 1fr 30px; gap: 5px; margin-bottom: 10px; }
-        label { display: block; margin-top: 10px; margin-bottom: 0.2rem; opacity: 0.8; font-size: 0.7rem; }
-        input, select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.85rem; }
-        button { width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: var(--border-color); color: white; margin-top: 15px; }
-        .btn-add { background: #475569; font-size: 0.7rem; padding: 5px; }
-        .res { margin-top: 1rem; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); font-size: 0.85rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td { padding: 4px 0; }
-        .profit-box { background: rgba(247, 147, 26, 0.1); border: 1px solid var(--btc); padding: 10px; margin-top: 10px; border-radius: 8px; }
+        .dashboard { width: 100%; max-width: 500px; }
+        .card { background: var(--card); padding: 2rem; border-radius: 16px; border-top: 4px solid var(--btc); }
+        .field-group { margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+        label { display: block; margin: 10px 0 2px 0; font-size: 0.75rem; opacity: 0.8; }
+        input { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: var(--btc); color: white; font-weight: bold; margin-top: 20px; }
+        .res { margin-top: 20px; padding: 15px; background: #0f172a; border-radius: 8px; }
     </style>
 </head>
 <body>
 
 <div class="dashboard">
-    <script>
-        function renderCard(type) {
-            let extraFields = type === 'BTC' ? `
-                <div class="profit-box">
-                    <label>Precio BTC (USD) | Objetivo</label>
-                    <div class="miner-row" style="grid-template-columns: 1fr 1fr;">
-                        <input type="number" id="btcPrice" placeholder="Precio Actual">
-                        <input type="number" id="btcTarget" placeholder="Precio Objetivo">
-                    </div>
-                    <label>Consumo (kW/h) | Coste (kWh)</label>
-                    <div class="miner-row" style="grid-template-columns: 1fr 1fr;">
-                        <input type="number" id="kwhConsumption" placeholder="kW/h">
-                        <input type="number" id="kwhCost" placeholder="Coste $/kWh">
-                    </div>
-                </div>` : '';
+    <div class="card">
+        <h2>Calculadora BTC Flex</h2>
+        
+        <label>Hashrate Total (TH/s)</label>
+        <input type="number" id="hashrate" placeholder="Ej: 100">
 
-            document.write(`
-                <div class="card ${type.toLowerCase()}">
-                    <h2>${type === 'BTC' ? 'Bitcoin' : 'Bitcoin Cash'}</h2>
-                    <label>Equipos (TH/s | Horas)</label>
-                    <div id="${type}MinersContainer">
-                        <div class="miner-row">
-                            <input type="number" class="${type}Speed" placeholder="TH/s">
-                            <input type="number" class="${type}Hours" value="24" placeholder="Horas">
-                            <button onclick="this.parentElement.remove()" style="padding:0; margin:0">×</button>
-                        </div>
-                    </div>
-                    <button class="btn-add" onclick="addMinerField('${type}')">+ Añadir Minero</button>
-                    <label>Red: Valor y Tipo</label>
-                    <div class="miner-row" style="grid-template-columns: 1fr 1fr;">
-                        <input type="number" id="${type}NetVal" placeholder="Valor Red">
-                        <select id="${type}NetType">
-                            <option value="hash">Hashrate (TH/s)</option>
-                            <option value="diffT">Dificultad (T)</option>
-                        </select>
-                    </div>
-                    ${extraFields}
-                    <button onclick="calcular('${type}')">Calcular Resultados</button>
-                    <div id="res${type}" class="res">Ingresa los datos</div>
-                </div>
-            `);
-        }
-        function addMinerField(t) {
-            const container = document.getElementById(t + 'MinersContainer');
-            container.insertAdjacentHTML('beforeend', `<div class="miner-row"><input type="number" class="${t}Speed" placeholder="TH/s"><input type="number" class="${t}Hours" value="24" placeholder="Horas"><button onclick="this.parentElement.remove()" style="padding:0; margin:0">×</button></div>`);
-        }
-        renderCard('BTC'); renderCard('BCH');
-    </script>
+        <label>Dificultad (T)</label>
+        <input type="number" id="difficulty" placeholder="Ej: 90000">
+
+        <div class="field-group">
+            <label>Precio Actual BTC ($)</label>
+            <input type="number" id="priceBtc" placeholder="Precio mercado">
+            
+            <label>Consumo Minero (W)</label>
+            <input type="number" id="watts" placeholder="Ej: 3000">
+            
+            <label>Precio Electricidad ($/kWh)</label>
+            <input type="number" id="costKwh" placeholder="Ej: 0.15">
+            
+            <label>Objetivo Mensual ($)</label>
+            <input type="number" id="goalMonth" placeholder="¿Cuánto quieres ganar?">
+        </div>
+
+        <button onclick="calcular()">Calcular Rentabilidad</button>
+        <div id="resultado" class="res">Introduce los datos para comenzar.</div>
+    </div>
 </div>
 
 <script>
-    function calcular(t) {
-        const speeds = document.querySelectorAll('.' + t + 'Speed');
-        const hours = document.querySelectorAll('.' + t + 'Hours');
-        const netVal = parseFloat(document.getElementById(t + 'NetVal').value);
-        const type = document.getElementById(t + 'NetType').value;
-        
-        let totalUserTH = 0;
-        speeds.forEach((s, index) => { totalUserTH += (parseFloat(s.value) || 0) * ((parseFloat(hours[index].value) || 24) / 24); });
+    function calcular() {
+        const hashrate = parseFloat(document.getElementById('hashrate').value) || 0;
+        const diff = parseFloat(document.getElementById('difficulty').value) || 1;
+        const btcPrice = parseFloat(document.getElementById('priceBtc').value) || 0;
+        const watts = parseFloat(document.getElementById('watts').value) || 0;
+        const costKwh = parseFloat(document.getElementById('costKwh').value) || 0;
+        const goal = parseFloat(document.getElementById('goalMonth').value) || 0;
 
-        const userHashH = totalUserTH * 1e12;
-        const netHashRateH = type === 'diffT' ? (netVal * 1e12 * 4294967296) / 600 : netVal * 1e12;
-        const pPerBlock = userHashH / netHashRateH;
+        // Cálculo de recompensa diaria estimada (simplificado)
+        // BTC/día = (Hashrate * 86400) / (Dificultad * 2^32) * 3.125
+        const btcPerDay = (hashrate * 1e12 * 86400) / (diff * 1e12 * 4294967296) * 3.125;
         
-        // Probabilidades
-        const periods = { "Día": 144, "Mes": 4320 };
-        let html = "<table>";
-        for (let p in periods) {
-            const prob = (1 - Math.pow((1 - pPerBlock), periods[p])) * 100;
-            html += `<tr><td>Prob. ${p}:</td><td align="right"><strong>${prob.toFixed(6)}%</strong></td></tr>`;
+        const ingresoDiario = btcPerDay * btcPrice;
+        const costoDiario = (watts / 1000) * 24 * costKwh;
+        const beneficioDiario = ingresoDiario - costoDiario;
+        const beneficioMensual = beneficioDiario * 30;
+
+        let html = `<strong>Resultados:</strong><br>
+                    - Ingreso bruto/día: $${ingresoDiario.toFixed(2)}<br>
+                    - Costo eléctrico/día: $${costoDiario.toFixed(2)}<br>
+                    - <b>Beneficio neto mensual: $${beneficioMensual.toFixed(2)}</b>`;
+
+        if (goal > 0) {
+            const diferencia = goal - beneficioMensual;
+            html += `<br><br>${diferencia > 0 
+                ? `Te faltan $${diferencia.toFixed(2)} para tu objetivo.` 
+                : `¡Has superado tu objetivo por $${Math.abs(diferencia).toFixed(2)}!`}`;
         }
 
-        // Rentabilidad BTC
-        if (t === 'BTC') {
-            const btcPrice = parseFloat(document.getElementById('btcPrice').value) || 0;
-            const btcTarget = parseFloat(document.getElementById('btcTarget').value) || btcPrice;
-            const kw = parseFloat(document.getElementById('kwhConsumption').value) || 0;
-            const cost = parseFloat(document.getElementById('kwhCost').value) || 0;
-            
-            // Recompensa actual (simplificada a 3.125 BTC por bloque)
-            const btcPerDay = (userHashH / netHashRateH) * 144 * 3.125;
-            const dailyCost = kw * 24 * cost;
-            const dailyProfit = (btcPerDay * btcTarget) - dailyCost;
-            
-            html += `<tr><td colspan="2"><hr></td></tr>
-                     <tr><td>Rent. Diaria (Target):</td><td align="right">$${dailyProfit.toFixed(2)}</td></tr>
-                     <tr><td>Rent. Mensual (Target):</td><td align="right">$${(dailyProfit * 30).toFixed(2)}</td></tr>`;
-        }
-        
-        document.getElementById('res' + t).innerHTML = html + "</table>";
+        document.getElementById('resultado').innerHTML = html;
     }
 </script>
 </body>
